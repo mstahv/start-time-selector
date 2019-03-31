@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<jpa:entity-mappings xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:java="http://jcp.org/en/jsr/detail?id=270" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:jpa="http://java.sun.com/xml/ns/persistence/orm" v="5.2" status="GENERATED" persistenceUnitName="DEFAULT_PU" sm="false" id="_155380794783633" xsi:schemaLocation="http://java.sun.com/xml/ns/persistence/orm orm_2_1.xsd">
+    <jpa:mapped-superclass abs="true" class="AbstractEntity" v="true" xre="false" m="false" rootElement="_155380794783633" id="_155380794971341">
+        <jpa:attributes>
+            <jpa:id attribute-type="Long" v="true" am="PRIVATE" name="id" jbt="false" id="_155380794971342">
+                <jpa:generated-value strategy="AUTO"/>
+            </jpa:id>
+            <jpa:version attribute-type="int" v="true" am="PRIVATE" name="version" jbt="false" id="_155380794990843"/>
+        </jpa:attributes>
+    </jpa:mapped-superclass>
+    <jpa:entity abs="false" class="Competition" superclassId="_155380794971341" v="true" xre="false" m="false" rootElement="_155380794783633" id="_155380794792134">
+        <jpa:attributes>
+            <jpa:basic attribute-type="String" v="true" am="PRIVATE" name="name" jbt="false" id="_155380794792235"/>
+            <jpa:basic attribute-type="java.time.LocalDateTime" v="true" am="PRIVATE" name="start" jbt="false" id="_155380794819336"/>
+            <jpa:basic attribute-type="java.time.LocalDateTime" v="true" am="PRIVATE" name="end" jbt="false" id="_155380794838037"/>
+            <jpa:basic attribute-type="boolean" v="true" am="PRIVATE" name="open" jbt="false" id="_155380794860838"/>
+            <jpa:basic attribute-type="int" v="true" am="PRIVATE" name="startIntervalSeconds" dv="60" jbt="false" id="_155380794860839"/>
+            <jpa:one-to-many own="false" collection-type="java.util.List" connected-entity-id="_155380795179154" connected-attribute-id="_155380795204056" v="true" am="PRIVATE" name="seriesGroups" jbt="false" id="_155380794860940">
+                <jpa:cascade>
+                    <jpa:cascade-all/>
+                </jpa:cascade>
+            </jpa:one-to-many>
+        </jpa:attributes>
+    </jpa:entity>
+    <jpa:entity abs="false" class="Competitor" superclassId="_155380794971341" v="true" xre="false" m="false" rootElement="_155380794783633" id="_155380794990944">
+        <jpa:attributes>
+            <jpa:basic attribute-type="String" v="true" am="PRIVATE" name="name" jbt="false" id="_155380794990945"/>
+            <jpa:basic attribute-type="String" v="true" am="PRIVATE" name="licenceId" jbt="false" id="_155380795011846"/>
+            <jpa:basic attribute-type="String" v="true" am="PRIVATE" name="emitNr" jbt="false" id="_155380795028947"/>
+            <jpa:many-to-one primaryKey="false" connected-entity-id="_155380795462059" v="true" am="PRIVATE" name="series" jbt="false" id="_155380795043548">
+                <jpa:cascade/>
+            </jpa:many-to-one>
+            <jpa:one-to-one own="false" primaryKey="false" connected-entity-id="_155380795095050" connected-attribute-id="_155380795122953" v="true" am="PRIVATE" name="startTime" jbt="false" id="_155380795052449">
+                <jpa:cascade/>
+            </jpa:one-to-one>
+        </jpa:attributes>
+    </jpa:entity>
+    <jpa:entity abs="false" class="StartTime" superclassId="_155380794971341" v="true" xre="false" m="false" rootElement="_155380794783633" id="_155380795095050">
+        <jpa:attributes>
+            <jpa:basic attribute-type="java.time.LocalDateTime" v="true" am="PRIVATE" name="time" jbt="false" id="_155380795107752"/>
+            <jpa:many-to-one primaryKey="false" connected-entity-id="_155380795179154" connected-attribute-id="_155380795319158" v="true" am="PRIVATE" name="seriesGroup" jbt="false" id="_155380795095051">
+                <jpa:cascade/>
+            </jpa:many-to-one>
+            <jpa:one-to-one own="true" primaryKey="false" connected-entity-id="_155380794990944" connected-attribute-id="_155380795052449" v="true" am="PRIVATE" name="competitor" jbt="false" id="_155380795122953">
+                <jpa:cascade>
+                    <jpa:cascade-all/>
+                </jpa:cascade>
+            </jpa:one-to-one>
+        </jpa:attributes>
+    </jpa:entity>
+    <jpa:entity abs="false" class="SeriesGroup" superclassId="_155380794971341" v="true" xre="false" m="false" rootElement="_155380794783633" id="_155380795179154">
+        <jpa:attributes>
+            <jpa:basic attribute-type="String" v="true" am="PRIVATE" name="name" jbt="false" id="_155380795179155"/>
+            <jpa:many-to-one primaryKey="false" connected-entity-id="_155380794792134" connected-attribute-id="_155380794860940" v="true" am="PRIVATE" name="competition" jbt="false" id="_155380795204056">
+                <jpa:cascade/>
+            </jpa:many-to-one>
+            <jpa:one-to-many own="false" collection-type="java.util.List" connected-entity-id="_155380795462059" connected-attribute-id="_155380795488161" v="true" am="PRIVATE" name="series" dv="[&#xA;java.util.ArrayList ,&#xA;java.util.List&#xA;]&#xA;new ArrayList&lt;&gt;()" jbt="false" id="_155380795223557">
+                <jpa:cascade>
+                    <jpa:cascade-all/>
+                </jpa:cascade>
+            </jpa:one-to-many>
+            <jpa:one-to-many own="false" collection-type="java.util.List" connected-entity-id="_155380795095050" connected-attribute-id="_155380795095051" v="true" am="PRIVATE" name="startTimes" dv="[&#xA;java.util.ArrayList ,&#xA;java.util.List&#xA;]&#xA;new ArrayList&lt;&gt;()" jbt="false" id="_155380795319158">
+                <jpa:cascade>
+                    <jpa:cascade-all/>
+                </jpa:cascade>
+            </jpa:one-to-many>
+        </jpa:attributes>
+    </jpa:entity>
+    <jpa:entity abs="false" class="Series" superclassId="_155380794971341" v="true" xre="false" m="false" rootElement="_155380794783633" id="_155380795462059">
+        <jpa:attributes>
+            <jpa:basic attribute-type="String" v="true" am="PRIVATE" name="name" jbt="false" id="_155380795462060"/>
+            <jpa:many-to-one primaryKey="false" connected-entity-id="_155380795179154" connected-attribute-id="_155380795223557" v="true" am="PRIVATE" name="seriesGroup" jbt="false" id="_155380795488161">
+                <jpa:cascade>
+                    <jpa:cascade-all/>
+                </jpa:cascade>
+            </jpa:many-to-one>
+        </jpa:attributes>
+    </jpa:entity>
+</jpa:entity-mappings>
