@@ -121,6 +121,13 @@
                 </configuration>
             </plugin>
         </plugins>
+
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>true</filtering>
+            </resource>
+        </resources>
     </build>
     <repositories>
         <repository>
@@ -140,8 +147,8 @@
             </activation>
             <properties>
                 <vaadin.productionMode>true</vaadin.productionMode>
+                <spring.profiles.active>prod</spring.profiles.active>
             </properties>
-
             <dependencies>
                 <dependency>
                     <groupId>com.vaadin</groupId>
