@@ -91,18 +91,12 @@ public class CompetitionAdminView extends VerticalLayout {
         pw.focus();
         Button login = new Button("Login");
         login.addClickListener(e -> {
-            System.out.println(pw.getValue());
-            System.out.println(cryptedPassword);
             String crypted = Crypt.crypt(pw.getValue(), cryptedPassword);
-            try {
-                if (crypted.equals(cryptedPassword)) {
-                    loginDialog.close();
-                    setVisible(true);
-                } else {
-                    Notification.show("Password did not match! If you want to use the service, contact matti ät tahvonen dot com");
-                }
-            } catch(Exception ex) {
-                ex.printStackTrace();
+            if (crypted.equals(cryptedPassword)) {
+                loginDialog.close();
+                setVisible(true);
+            } else {
+                Notification.show("Password did not match! If you want to use the service, contact matti ät tahvonen dot com");
             }
         });
         login.addClickShortcut(Key.ENTER);
