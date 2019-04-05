@@ -53,12 +53,14 @@ public class UserService {
     @Transactional
     public void reserveStartTime(Competitor competitor, StartTime startTime) {
         startTime.setCompetitor(competitor);
+        startTime.setSelfAssigned(true);
         startTimeRepository.save(startTime);
     }
 
     @Transactional
     public void releaseStartTime(StartTime startTime) {
         startTime.setCompetitor(null);
+        startTime.setSelfAssigned(false);
         startTimeRepository.save(startTime);
     }
 }

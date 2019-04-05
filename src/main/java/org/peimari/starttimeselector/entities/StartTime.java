@@ -22,5 +22,6 @@ public class StartTime extends AbstractEntity {
     private LocalDateTime time;
     @OneToOne(cascade = CascadeType.ALL)
     private Competitor competitor;
+    private boolean selfAssigned;
 
 }
