@@ -2,6 +2,7 @@ package org.peimari.starttimeselector;
 
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
+import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.H3;
@@ -35,6 +36,7 @@ public class MainView extends VerticalLayout {
     private TextField license = new TextField();
     private TextField emit = new TextField();
     private Button login = new Button();
+    private Anchor feedback = new Anchor("https://forms.gle/ddMmodokdDwU8apT7");
 
     @PostConstruct
     void init() {
@@ -43,8 +45,9 @@ public class MainView extends VerticalLayout {
         license.setLabel(getTranslation("license"));
         emit.setLabel(getTranslation("emit"));
         login.setText(getTranslation("login"));
+        feedback.setText(getTranslation("feedback"));
 
-        add(header, sectionHeader, license, emit, login);
+        add(header, sectionHeader, license, emit, login, feedback);
         login.addClickListener(e -> login());
     }
 
