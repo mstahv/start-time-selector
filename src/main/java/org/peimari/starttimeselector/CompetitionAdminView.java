@@ -37,7 +37,7 @@ public class CompetitionAdminView extends VerticalLayout {
     ClassesAndClassGroupsEditor classesAndClassGroupsEditor;
 
     @Value("${adminpassword}")
-    private String password;
+    private String cryptedPassword;
 
     Binder<Competition> binder = new Binder<>(Competition.class);
 
@@ -88,17 +88,26 @@ public class CompetitionAdminView extends VerticalLayout {
         setVisible(false);
         Dialog loginDialog = new Dialog();
         PasswordField pw = new PasswordField();
+        pw.focus();
         Button login = new Button("Login");
         login.addClickListener(e -> {
-            Crypt.crypt("sdfsd");
-            if (Crypt.crypt(pw.getValue(), password).equals(password)) {
-                loginDialog.close();
-                setVisible(true);
-            } else {
-                Notification.show("Password did not match! If you want to use the service, contact matti ät tahvonen dot com");
+            System.out.println(pw.getValue());
+            System.out.println(cryptedPassword);
+            String crypted = Crypt.crypt(pw.getValue(), cryptedPassword);
+            try {
+                if (crypted.equals(cryptedPassword)) {
+                    loginDialog.close();
+                    setVisible(true);
+                } else {
+                    Notification.show("Password did not match! If you want to use the service, contact matti ät tahvonen dot com");
+                }
+            } catch(Exception ex) {
+                ex.printStackTrace();
             }
         });
         login.addClickShortcut(Key.ENTER);
+        loginDialog.setCloseOnOutsideClick(false);
+        loginDialog.setCloseOnEsc(false);
         loginDialog.add(new H1("Login to competition admin"), pw, login);
         loginDialog.open();
 
