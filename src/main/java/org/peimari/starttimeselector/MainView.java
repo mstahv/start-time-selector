@@ -2,10 +2,7 @@ package org.peimari.starttimeselector;
 
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
-import com.vaadin.flow.component.html.Anchor;
-import com.vaadin.flow.component.html.H1;
-import com.vaadin.flow.component.html.H2;
-import com.vaadin.flow.component.html.H3;
+import com.vaadin.flow.component.html.*;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
@@ -96,7 +93,8 @@ public class MainView extends VerticalLayout {
                 });
                 add(startTimeComboBox);
             } else {
-                    add(new H3(MessageFormat.format(getTranslation("preferre-start-time-is.0"), competitor.getStartTime().getTime().toLocalTime())));
+                add(new H3(MessageFormat.format(getTranslation("preferre-start-time-is.0"), competitor.getStartTime().getTime().toLocalTime())));
+                add(new Paragraph(getTranslation("whatnext")));
                 add(new Button(getTranslation("choose.new"), e -> {
                     userService.releaseStartTime(competitor.getStartTime());
                     login();

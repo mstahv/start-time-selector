@@ -5,27 +5,34 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.dialog.Dialog;
+import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.Hr;
+import com.vaadin.flow.component.html.Paragraph;
 import com.vaadin.flow.component.notification.Notification;
-import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.page.Push;
+import com.vaadin.flow.component.tabs.Tab;
+import com.vaadin.flow.component.tabs.Tabs;
 import com.vaadin.flow.component.textfield.PasswordField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.router.Route;
 import org.apache.commons.codec.digest.Crypt;
 import org.peimari.starttimeselector.entities.Competition;
+import org.peimari.starttimeselector.entities.Competitor;
+import org.peimari.starttimeselector.entities.StartTime;
 import org.peimari.starttimeselector.service.AdminService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.vaadin.firitin.components.html.DynamicFileDownloader;
+import org.vaadin.firitin.components.DynamicFileDownloader;
 import org.vaadin.firitin.components.orderedlayout.VHorizontalLayout;
+import org.vaadin.firitin.components.upload.UploadFileHandler;
 import org.vaadin.firitin.fields.LocalDateTimeField;
 
 import javax.annotation.PostConstruct;
+import java.io.IOException;
 
 @Route
 @Push
@@ -40,6 +47,12 @@ public class CompetitionAdminView extends VerticalLayout {
     private String cryptedPassword;
 
     Binder<Competition> binder = new Binder<>(Competition.class);
+
+    Tabs tabs = new Tabs();
+    Tab competitionDetails = new Tab("1. Competition details");
+    Tab defineClasses = new Tab("2. Define classes and groups");
+    Tab loadCompetitors = new Tab("3. Load competitors and open");
+    Tab raffle = new Tab("4. Raffle, download and close");
 
     private TextField name = new TextField("Name");
     private LocalDateTimeField start = new LocalDateTimeField("Start");
@@ -56,8 +69,10 @@ public class CompetitionAdminView extends VerticalLayout {
     VerticalLayout form = new VerticalLayout(
             new Hr(),
             new H2("Competition details"),
-            name, open, start, end,
-            new HorizontalLayout(save, raffleRest, download, delete));
+            name, open, start, end, save
+            );
+
+    VerticalLayout content = new VerticalLayout();
 
     ComboBox<Competition> competitionSelector = new ComboBox<>();
     Button createNew = new Button("Create new competition");
@@ -78,10 +93,69 @@ public class CompetitionAdminView extends VerticalLayout {
         vHorizontalLayout.setVerticalComponentAlignment(Alignment.END, createNew);
         add(vHorizontalLayout);
 
-        form.add(classesAndClassGroupsEditor);
-        form.setVisible(false);
+        tabs.add(competitionDetails, defineClasses, loadCompetitors, raffle);
+
+        add(tabs, content);
+
+        tabs.addSelectedChangeListener( e -> {
+            content.removeAll();
+            if(tabs.getSelectedTab() == competitionDetails) {
+                content.add(form);
+            } else if(tabs.getSelectedTab() == defineClasses) {
+                content.add(classesAndClassGroupsEditor);
+            } else if(tabs.getSelectedTab() == loadCompetitors) {
+
+                content.add(new Paragraph("Be sure that previous step is properly configured. The file can be same IRMA csv file as used to load competitors. Uploading may take a while. Only competitors with valid series are saved."));
+
+                Grid<Competitor> competitorGrid = new Grid<>(Competitor.class);
+                competitorGrid.setColumns("name", "licenceId", "emitNr");
+                Grid.Column<Competitor> competitorColumn = competitorGrid.addColumn(c -> {
+                    StartTime st = c.getStartTime();
+                    if(st == null) {
+                        return "not set";
+                    } else {
+                        return st.getTime().toString();
+                    }
+                });
+                content.add(competitorGrid);
+                Competition competition = binder.getBean();
+                competitorGrid.setItems(adminService.getCompetitors(competition));
+
+                UploadFileHandler kilpailijoidenLataus = new UploadFileHandler((inputStream, s, s1) -> {
+                    try {
+                        int count = adminService.readInCompetitorsFromIrmaFile(inputStream, binder.getBean());
+                        // TODO, due to Upload bug this don't work unless push is enabled :-(
+                        getUI().get().access(() -> {
+                            notify(count + " competitors loaded from IRMA file!");
+                            competitorGrid.setItems(adminService.getCompetitors(binder.getBean()));
+                        });
+                    } catch (IOException ex) {
+                        ex.printStackTrace();
+                    }
+                });
+                kilpailijoidenLataus.setUploadButton(new Button("Load competitors from IRM file..."));
+
+                content.add(kilpailijoidenLataus);
+
+                Button button = new Button("Open for start time selection", clickEvent -> {
+                    open.setValue(true);
+                    save();
+                    notify("Competitors can now pick their start times. Log back in when you want to close the service.");
+                });
+                content.add(button);
+
+            } else if(tabs.getSelectedTab() == raffle) {
+                content.add("When deadline is done, you can close the competition and raffle start times for those who didn't pick a start time. You can also download currently defined start times using the download CSV link, any time you want. Deleting deletes the competition from the database.");
+                content.add(raffleRest, download, delete);
+            }
+
+        });
+
+        tabs.setVisible(false);
+        content.setVisible(false);
+
         binder.bindInstanceFields(this);
-        add(form);
+        content.add(form);
 
         raffleRest.addClickListener(e -> raffleRest());
 
@@ -114,8 +188,9 @@ public class CompetitionAdminView extends VerticalLayout {
     private void raffleRest() {
         Competition competition = binder.getBean();
         adminService.raffleRest(competition);
-        competition.setOpen(false);
-        save();
+        listCompetititions();
+        competitionSelector.setValue(null);
+        competitionSelector.setValue(competition);
         notify("Remaining competitors raffled for free slots");
     }
 
@@ -144,9 +219,11 @@ public class CompetitionAdminView extends VerticalLayout {
         if (c != null) {
             classesAndClassGroupsEditor.setCompetition(c);
             binder.setBean(c);
-            form.setVisible(true);
+            tabs.setVisible(true);
+            content.setVisible(true);
         } else {
-            form.setVisible(false);
+            tabs.setVisible(false);
+            content.setVisible(false);
         }
     }
 

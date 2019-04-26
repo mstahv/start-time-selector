@@ -6,6 +6,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import com.vaadin.flow.spring.annotation.VaadinSessionScope;
+import org.apache.commons.lang3.mutable.MutableInt;
 import org.peimari.starttimeselector.entities.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -113,7 +114,8 @@ public class AdminService {
     }
 
     @Transactional
-    public void readInCompetitorsFromIrmaFile(InputStream inputStream, Competition competition) throws IOException {
+    public int readInCompetitorsFromIrmaFile(InputStream inputStream, Competition competition) throws IOException {
+        MutableInt mutableInt = new MutableInt(0);
         List<List<String>> input = readIrmaFile(inputStream);
         List<SeriesGroup> allByCompetition = seriesGroupRepository.findAllByCompetition(competition);
         Map<String, Series> seriesNameToEntity = new HashMap<>();
@@ -128,13 +130,17 @@ public class AdminService {
             if (s != null) {
                 competitor.setSeries(s);
                 competitorRepository.save(competitor);
+                mutableInt.increment();
             }
         });
+        return mutableInt.intValue();
     }
 
     @Transactional
-    public void raffleRest(Competition competition) {
+    public Competition raffleRest(Competition competition) {
         competition = competitionRepository.getOne(competition.getId());
+        competition.setOpen(false);
+        competition = competitionRepository.save(competition);
 
         competition.getSeriesGroups().forEach(seriesGroup -> {
             List<StartTime> startTimes = startTimeRepository.findAllBySeriesGroupAndCompetitorIsNull(seriesGroup);
@@ -152,13 +158,14 @@ public class AdminService {
                 });
             });
         });
+        return competition;
     }
 
     @Transactional
     public void writeCsvForPirila(Competition competition, OutputStream os) {
         PrintWriter writer = new PrintWriter(os);
 
-        writer.println("ArvLahto-1;Sarja;Nimi;KilpId;Emit");
+        writer.println("ArvLahto-1;Sarja;Nimi;KilpId;Emit;SelfAssigned");
 
         competition = competitionRepository.getOne(competition.getId());
 
@@ -176,6 +183,8 @@ public class AdminService {
                     writer.print(DELIMITER);
                     writer.print(competitor.getEmitNr());
                     writer.print(DELIMITER);
+                    writer.print(startTime.isSelfAssigned());
+                    writer.print(DELIMITER);
                     writer.println();
                 }
             });
@@ -187,7 +196,17 @@ public class AdminService {
     @Transactional
     public void deleteCompetition(Competition competition) {
         competition = competitionRepository.getOne(competition.getId());
-        competition.getSeriesGroups().forEach(seriesGroupRepository::delete);
+        competitorRepository.findAllByCompetition(competition).forEach(competitorRepository::delete);
+        competition.getSeriesGroups().forEach(sg -> {
+            sg.getStartTimes().forEach(startTimeRepository::delete);
+            sg.getSeries().forEach(seriesRepository::delete);
+            seriesGroupRepository.delete(sg);
+        });
         competitionRepository.delete(competition);
     }
+
+    public List<Competitor> getCompetitors(Competition c) {
+        return competitorRepository.findAllByCompetition(c);
+    }
+
 }

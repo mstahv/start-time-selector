@@ -4,6 +4,7 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.html.Hr;
+import com.vaadin.flow.component.html.Paragraph;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -35,6 +36,8 @@ public class ClassesAndClassGroupsEditor extends VerticalLayout {
     @PostConstruct
     void init() {
         add(new Hr(), new H3("Classes and Class groups"));
+
+        add(new Paragraph("Combining classes makes them use the same pool of start times (for example same first control). Competitors in deleted classes are ignored (E series without selectable times) "));
 
         // TreeGrid here
 
@@ -69,22 +72,7 @@ public class ClassesAndClassGroupsEditor extends VerticalLayout {
         });
         ufh.setUploadButton(new Button("Load classes from IRMA file..."));
 
-        UploadFileHandler kilpailijoidenLataus = new UploadFileHandler((inputStream, s, s1) -> {
-            try {
-                adminService.readInCompetitorsFromIrmaFile(inputStream, competition);
-                // TODO, due to Upload bug this don't work unless push is enabled :-(
-                getUI().get().access(() -> {
-                    listGroups();
-                    notify("Competitors loaded from IRMA file!");
-                });
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        });
-        kilpailijoidenLataus.setUploadButton(new Button("Load competitors from IRM file..."));
-
-
-        add(new HorizontalLayout(ufh, kilpailijoidenLataus));
+        add(new HorizontalLayout(ufh));
     }
 
     private void notify(String s) {

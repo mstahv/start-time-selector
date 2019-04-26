@@ -38,11 +38,16 @@ public class UserService {
         sample.setEmitNr(emit);
         sample.setLicenceId(id);
         List<Competitor> all = competitorRepository.findAll(Example.of(sample));
-        all.forEach(c -> {
-            // lazy load possible start time and competition
-            c.getStartTime();
-            c.getSeries().getSeriesGroup().getCompetition();
-        });
+        for(Iterator<Competitor> it = all.iterator(); it.hasNext();) {
+            Competitor c = it.next();
+            Competition competition = c.getSeries().getSeriesGroup().getCompetition();
+            if(competition.isOpen()) {
+                // lazy load possible start time and competition
+                c.getStartTime();
+            } else {
+                it.remove();
+            }
+        }
         return all;
     }
 
