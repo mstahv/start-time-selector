@@ -47,7 +47,7 @@ public class AdminService {
 
     public List<List<String>> readIrmaFile(InputStream inputStream) throws IOException {
         List<List<String>> records = new ArrayList<>();
-        BufferedReader br = new BufferedReader(new InputStreamReader(inputStream));
+        BufferedReader br = new BufferedReader(new InputStreamReader(inputStream, "ISO-8859-15"));
         String line;
         while ((line = br.readLine()) != null) {
             String[] values = line.split(DELIMITER);
