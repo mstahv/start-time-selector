@@ -31,7 +31,6 @@ public class MainView extends VerticalLayout {
     private H2 sectionHeader = new H2();
 
     private TextField license = new TextField();
-    private TextField emit = new TextField();
     private Button login = new Button();
     private Anchor feedback = new Anchor("https://forms.gle/ddMmodokdDwU8apT7");
 
@@ -40,16 +39,15 @@ public class MainView extends VerticalLayout {
         header.setText(getTranslation("mainview.header"));
         sectionHeader.setText(getTranslation("mainview.sectionHeader"));
         license.setLabel(getTranslation("license"));
-        emit.setLabel(getTranslation("emit"));
         login.setText(getTranslation("login"));
         feedback.setText(getTranslation("feedback"));
 
-        add(header, sectionHeader, license, emit, login, feedback);
+        add(header, sectionHeader, license, login, feedback);
         login.addClickListener(e -> login());
     }
 
     private void login() {
-        listCompetitions(userService.getCompetitorInfo(license.getValue(), emit.getValue()));
+        listCompetitions(userService.getCompetitorInfo(license.getValue()));
     }
 
     private void listCompetitions(List<Competitor> competitorInfo) {

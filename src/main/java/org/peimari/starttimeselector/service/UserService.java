@@ -6,13 +6,7 @@ import org.springframework.data.domain.Example;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.time.LocalDateTime;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Service
 public class UserService {
@@ -33,10 +27,9 @@ public class UserService {
     }
 
     @Transactional
-    public List<Competitor> getCompetitorInfo(String id, String emit) {
+    public List<Competitor> getCompetitorInfo(String licenceId) {
         Competitor sample = new Competitor();
-        sample.setEmitNr(emit);
-        sample.setLicenceId(id);
+        sample.setLicenceId(licenceId);
         List<Competitor> all = competitorRepository.findAll(Example.of(sample));
         for(Iterator<Competitor> it = all.iterator(); it.hasNext();) {
             Competitor c = it.next();
