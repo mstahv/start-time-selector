@@ -15,9 +15,11 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.page.Push;
 import com.vaadin.flow.component.tabs.Tab;
 import com.vaadin.flow.component.tabs.Tabs;
+import com.vaadin.flow.component.textfield.NumberField;
 import com.vaadin.flow.component.textfield.PasswordField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
+import com.vaadin.flow.function.SerializableFunction;
 import com.vaadin.flow.router.Route;
 import org.apache.commons.codec.digest.Crypt;
 import org.peimari.starttimeselector.entities.Competition;
@@ -57,6 +59,7 @@ public class CompetitionAdminView extends VerticalLayout {
     private TextField name = new TextField("Name");
     private LocalDateTimeField start = new LocalDateTimeField("Start");
     private LocalDateTimeField end = new LocalDateTimeField("End");
+    private TextField startIntervalSeconds = new TextField("Start time interval (seconds)");
     private Checkbox open = new Checkbox("Open for public");
     private Button save = new Button("Save");
     // TODO confirm button
@@ -69,7 +72,7 @@ public class CompetitionAdminView extends VerticalLayout {
     VerticalLayout form = new VerticalLayout(
             new Hr(),
             new H2("Competition details"),
-            name, open, start, end, save
+            name, open, start, end, startIntervalSeconds, save
             );
 
     VerticalLayout content = new VerticalLayout();
@@ -154,6 +157,8 @@ public class CompetitionAdminView extends VerticalLayout {
         tabs.setVisible(false);
         content.setVisible(false);
 
+        startIntervalSeconds.setPattern("[0-9]");
+        binder.forMemberField(startIntervalSeconds).withConverter(this::parseIntOrDefault, i -> Integer.toString(i));
         binder.bindInstanceFields(this);
         content.add(form);
 
@@ -224,6 +229,14 @@ public class CompetitionAdminView extends VerticalLayout {
         } else {
             tabs.setVisible(false);
             content.setVisible(false);
+        }
+    }
+
+    private Integer parseIntOrDefault(String toParse) {
+        try {
+            return Integer.parseInt(toParse);
+        } catch (NumberFormatException e) {
+            return 60;
         }
     }
 

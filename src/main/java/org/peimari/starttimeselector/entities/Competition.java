@@ -19,7 +19,7 @@ public class Competition extends AbstractEntity {
     private LocalDateTime start;
     private LocalDateTime end;
     private boolean open;
-    private int startIntervalSeconds = 60;
+    private Integer startIntervalSeconds = 60;
     
     @OneToMany(mappedBy="competition", cascade = CascadeType.ALL)
     private List<SeriesGroup> seriesGroups;
