@@ -8,6 +8,6 @@ import java.util.List;
 @Repository
 public interface StartTimeRepository extends JpaRepository<StartTime, Long> {
 
-    List<StartTime> findAllBySeriesGroupAndCompetitorIsNull(SeriesGroup seriesGroup);
+    List<StartTime> findAllBySeriesGroupAndCompetitorIsNullOrderByTimeAsc(SeriesGroup seriesGroup);
 
 }

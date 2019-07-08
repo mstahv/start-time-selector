@@ -45,7 +45,7 @@ public class UserService {
     }
 
     public List<StartTime> findAvailableStartTimes(SeriesGroup seriesGroup) {
-        return startTimeRepository.findAllBySeriesGroupAndCompetitorIsNull(seriesGroup);
+        return startTimeRepository.findAllBySeriesGroupAndCompetitorIsNullOrderByTimeAsc(seriesGroup);
     }
 
     @Transactional

@@ -143,7 +143,7 @@ public class AdminService {
         competition = competitionRepository.save(competition);
 
         competition.getSeriesGroups().forEach(seriesGroup -> {
-            List<StartTime> startTimes = startTimeRepository.findAllBySeriesGroupAndCompetitorIsNull(seriesGroup);
+            List<StartTime> startTimes = startTimeRepository.findAllBySeriesGroupAndCompetitorIsNullOrderByTimeAsc(seriesGroup);
             Collections.shuffle(startTimes);
             seriesGroup.getSeries().forEach(series -> {
                 List<Competitor> competitors = competitorRepository.findAllBySeries(series);
