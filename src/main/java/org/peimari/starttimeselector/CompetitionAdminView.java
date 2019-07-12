@@ -1,5 +1,7 @@
 package org.peimari.starttimeselector;
 
+import com.vaadin.flow.component.AbstractField;
+import com.vaadin.flow.component.HasValue;
 import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.checkbox.Checkbox;
@@ -10,9 +12,12 @@ import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.Hr;
 import com.vaadin.flow.component.html.Paragraph;
+import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.page.Push;
+import com.vaadin.flow.component.select.Select;
 import com.vaadin.flow.component.tabs.Tab;
 import com.vaadin.flow.component.tabs.Tabs;
 import com.vaadin.flow.component.textfield.NumberField;
@@ -24,6 +29,7 @@ import com.vaadin.flow.router.Route;
 import org.apache.commons.codec.digest.Crypt;
 import org.peimari.starttimeselector.entities.Competition;
 import org.peimari.starttimeselector.entities.Competitor;
+import org.peimari.starttimeselector.entities.Series;
 import org.peimari.starttimeselector.entities.StartTime;
 import org.peimari.starttimeselector.service.AdminService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -68,12 +74,13 @@ public class CompetitionAdminView extends VerticalLayout {
         adminService.writeCsvForPirila(binder.getBean(), os);
     });
     private Button delete = new Button("Delete competition", e -> delete());
+    private Grid<Competitor> competitorGrid = new Grid<>(Competitor.class);
 
     VerticalLayout form = new VerticalLayout(
             new Hr(),
             new H2("Competition details"),
             name, open, start, end, startIntervalSeconds, save
-            );
+    );
 
     VerticalLayout content = new VerticalLayout();
 
@@ -100,29 +107,53 @@ public class CompetitionAdminView extends VerticalLayout {
 
         add(tabs, content);
 
-        tabs.addSelectedChangeListener( e -> {
+        competitorGrid.setColumns("name", "licenceId", "emitNr");
+        competitorGrid.addColumn(c -> {
+            StartTime st = c.getStartTime();
+            if (st == null) {
+                return "not set";
+            } else {
+                return st.getTime().toString();
+            }
+        });
+        competitorGrid.addComponentColumn(c -> {
+            return new Button(VaadinIcon.TRASH.create(), e -> {
+                adminService.deleteCompetitor(c);
+                listCompetitors();
+            });
+        });
+
+        tabs.addSelectedChangeListener(e -> {
             content.removeAll();
-            if(tabs.getSelectedTab() == competitionDetails) {
+            if (tabs.getSelectedTab() == competitionDetails) {
                 content.add(form);
-            } else if(tabs.getSelectedTab() == defineClasses) {
+            } else if (tabs.getSelectedTab() == defineClasses) {
                 content.add(classesAndClassGroupsEditor);
-            } else if(tabs.getSelectedTab() == loadCompetitors) {
+            } else if (tabs.getSelectedTab() == loadCompetitors) {
 
                 content.add(new Paragraph("Be sure that previous step is properly configured. The file can be same IRMA csv file as used to load competitors. Uploading may take a while. Only competitors with valid series are saved."));
 
-                Grid<Competitor> competitorGrid = new Grid<>(Competitor.class);
-                competitorGrid.setColumns("name", "licenceId", "emitNr");
-                Grid.Column<Competitor> competitorColumn = competitorGrid.addColumn(c -> {
-                    StartTime st = c.getStartTime();
-                    if(st == null) {
-                        return "not set";
+                content.add(competitorGrid);
+                listCompetitors();
+
+                Select<Series> seriesSelect = new Select<>();
+                seriesSelect.setItems(adminService.getSeries(binder.getBean()));
+                seriesSelect.setTextRenderer(Series::getName);
+                TextField license = new TextField("LicenceNr");
+                TextField name = new TextField("Name");
+                Button addNewCompetitor = new Button("Add new");
+                addNewCompetitor.addClickListener(click -> {
+                    if (seriesSelect.getValue() != null && !license.getValue().isEmpty() && !name.getValue().isEmpty()) {
+                        adminService.addCompetitor(seriesSelect.getValue(), license.getValue(), name.getValue());
+                        license.clear();
+                        name.clear();
+                        Notification.show("New competitor added");
+                        listCompetitors();
                     } else {
-                        return st.getTime().toString();
+                        Notification.show("All fields must be filled to add a new competitor!");
                     }
                 });
-                content.add(competitorGrid);
-                Competition competition = binder.getBean();
-                competitorGrid.setItems(adminService.getCompetitors(competition));
+                content.add(new VHorizontalLayout(license, name, seriesSelect, addNewCompetitor).alignAll(Alignment.END));
 
                 UploadFileHandler kilpailijoidenLataus = new UploadFileHandler((inputStream, s, s1) -> {
                     try {
@@ -147,7 +178,7 @@ public class CompetitionAdminView extends VerticalLayout {
                 });
                 content.add(button);
 
-            } else if(tabs.getSelectedTab() == raffle) {
+            } else if (tabs.getSelectedTab() == raffle) {
                 content.add("When deadline is done, you can close the competition and raffle start times for those who didn't pick a start time. You can also download currently defined start times using the download CSV link, any time you want. Deleting deletes the competition from the database.");
                 content.add(raffleRest, download, delete);
             }
@@ -197,6 +228,11 @@ public class CompetitionAdminView extends VerticalLayout {
         competitionSelector.setValue(null);
         competitionSelector.setValue(competition);
         notify("Remaining competitors raffled for free slots");
+    }
+
+    private void listCompetitors() {
+        Competition competition = binder.getBean();
+        competitorGrid.setItems(adminService.getCompetitors(competition));
     }
 
     private void delete() {

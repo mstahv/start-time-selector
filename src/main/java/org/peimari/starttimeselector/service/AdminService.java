@@ -56,7 +56,6 @@ public class AdminService {
         return records;
     }
 
-
     @Transactional
     public void readInSeriesFromIrmaFile(InputStream inputStream, Competition c) throws IOException {
         List<List<String>> input = readIrmaFile(inputStream);
@@ -86,6 +85,13 @@ public class AdminService {
     @Transactional
     public List<SeriesGroup> getGroups(Competition competition) {
         return seriesGroupRepository.findAllByCompetition(competition);
+    }
+
+    @Transactional
+    public List<Series> getSeries(Competition competition) {
+        ArrayList<Series> series = new ArrayList<>();
+        seriesGroupRepository.findAllByCompetition(competition).stream().forEach(sg -> series.addAll(sg.getSeries()));
+        return series;
     }
 
     @Transactional
@@ -203,6 +209,27 @@ public class AdminService {
             seriesGroupRepository.delete(sg);
         });
         competitionRepository.delete(competition);
+    }
+
+    @Transactional
+    public void deleteCompetitor(Competitor competitor) {
+        competitor = competitorRepository.findById(competitor.getId()).get();
+        StartTime startTime = competitor.getStartTime();
+        if (startTime != null) {
+            startTime.setCompetitor(null);
+            startTime.setSelfAssigned(false);
+            startTimeRepository.save(startTime);
+        }
+        competitorRepository.delete(competitor);
+    }
+
+    @Transactional
+    public void addCompetitor(Series s, String licence, String name) {
+        Competitor competitor = new Competitor();
+        competitor.setSeries(s);
+        competitor.setLicenceId(licence);
+        competitor.setName(name);
+        competitorRepository.save(competitor);
     }
 
     public List<Competitor> getCompetitors(Competition c) {
