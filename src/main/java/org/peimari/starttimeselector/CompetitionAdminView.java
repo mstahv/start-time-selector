@@ -6,6 +6,7 @@ import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.combobox.ComboBox;
+import com.vaadin.flow.component.datetimepicker.DateTimePicker;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.H1;
@@ -63,8 +64,9 @@ public class CompetitionAdminView extends VerticalLayout {
     Tab raffle = new Tab("4. Raffle, download and close");
 
     private TextField name = new TextField("Name");
-    private LocalDateTimeField start = new LocalDateTimeField("Start");
-    private LocalDateTimeField end = new LocalDateTimeField("End");
+    
+    private DateTimePicker start = new DateTimePicker();
+    private DateTimePicker end = new DateTimePicker();
     private TextField startIntervalSeconds = new TextField("Start time interval (seconds)");
     private Checkbox open = new Checkbox("Open for public");
     private Button save = new Button("Save");
@@ -89,6 +91,9 @@ public class CompetitionAdminView extends VerticalLayout {
 
     @PostConstruct
     void init() {
+        
+        start.setLabel("Start");
+        end.setLabel("End");
 
         createNew.addClickListener(e -> newCompetition());
         save.addClickListener(e -> save());
