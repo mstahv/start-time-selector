@@ -73,7 +73,12 @@ public class CompetitionAdminView extends VerticalLayout {
     private DynamicFileDownloader download = new DynamicFileDownloader("Download CSV", "file.csv", os -> {
         adminService.writeCsvForPirila(binder.getBean(), os);
     });
-    private Button delete = new Button("Delete competition", e -> delete());
+    
+    
+    private DeleteButton delete = new DeleteButton()
+            .withText("Delete competition")
+            .withConfirmHandler(() -> this.delete());
+    
     private Grid<Competitor> competitorGrid = new Grid<>(Competitor.class);
     private Paragraph compatitorCount = new Paragraph();
 
@@ -281,6 +286,7 @@ public class CompetitionAdminView extends VerticalLayout {
             binder.setBean(c);
             tabs.setVisible(true);
             content.setVisible(true);
+            delete.withHeaderText("You are about to delete competition:" + c.getName());
         } else {
             tabs.setVisible(false);
             content.setVisible(false);
