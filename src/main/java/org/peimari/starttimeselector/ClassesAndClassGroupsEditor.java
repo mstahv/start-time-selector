@@ -44,7 +44,7 @@ public class ClassesAndClassGroupsEditor extends VerticalLayout {
 
         // TreeGrid here
 
-        groups.addColumn(SeriesGroup::getName).setHeader("Series");
+        groups.addColumn(SeriesGroup::getName).setHeader("Series").setSortable(true);
         groups.addColumn(sg -> sg.getStartTimes().size()).setHeader("Starttimes");
         groups.addColumn(sg -> adminService.countCompetitors(sg)).setHeader("Competitors");
         groups.addComponentColumn(sg -> new Button("Edit start times", e -> {
