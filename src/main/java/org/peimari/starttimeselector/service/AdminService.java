@@ -95,7 +95,7 @@ public class AdminService {
     public long countCompetitors(SeriesGroup sg) {
         long count = 0;
         for (Series series : sg.getSeries()) {
-            count =+ competitorRepository.countAllBySeries(series);
+            count = count + competitorRepository.countAllBySeries(series);
         }
         return count;
     }
@@ -119,6 +119,7 @@ public class AdminService {
                 next.getSeries().forEach(s -> {
                     master.getSeries().add(s);
                     s.setSeriesGroup(master);
+                    seriesRepository.save(s);
                 });
                 next.getSeries().clear();
                 seriesGroupRepository.deleteById(next.getId());
