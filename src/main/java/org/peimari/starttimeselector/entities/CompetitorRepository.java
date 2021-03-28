@@ -20,4 +20,6 @@ public interface CompetitorRepository extends JpaRepository<Competitor, Long> {
     @Query("select c from Competitor c join c.series s join s.seriesGroup sg join sg.competition comp where comp = ?1")
     List<Competitor> findAllByCompetition(Competition competition);
 
+    public void deleteBySeries(Series series);
+
 }

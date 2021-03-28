@@ -61,6 +61,7 @@ public class AdminService {
         seriesNames.forEach(name -> addSeriesAndGroup(c, name));
     }
 
+    @Transactional
     private void addSeriesAndGroup(Competition competition, String s) {
         Series series = new Series();
         series.setName(s);
@@ -77,6 +78,7 @@ public class AdminService {
             group.getStartTimes().add(st);
             start = start.plusSeconds(competition.getStartIntervalSeconds());
         }
+        seriesGroupRepository.save(group);
         seriesRepository.save(series);
     }
 
@@ -111,10 +113,10 @@ public class AdminService {
     public void combineSeriesGroups(Set<SeriesGroup> seriesGroupsToCombine) {
         if (seriesGroupsToCombine.size() > 1) {
             ArrayList<SeriesGroup> seriesGroups = new ArrayList<>(seriesGroupsToCombine);
-            SeriesGroup master = seriesGroups.remove(0);
+            SeriesGroup master = seriesGroupRepository.findById(seriesGroups.remove(0).getId()).get();
             SeriesGroup next;
             while (!seriesGroups.isEmpty()) {
-                next = seriesGroups.remove(0);
+                next = seriesGroupRepository.findById(seriesGroups.remove(0).getId()).get();
                 master.setName(master.getName() + "," + next.getName());
                 next.getSeries().forEach(s -> {
                     master.getSeries().add(s);
@@ -130,7 +132,10 @@ public class AdminService {
 
     @Transactional
     public void deleteSeriesGroups(Set<SeriesGroup> seriesGroups) {
-        seriesGroups.forEach(sg -> seriesGroupRepository.deleteById(sg.getId()));
+        seriesGroups.forEach(sg -> {
+            sg.getSeries().forEach(series -> competitorRepository.deleteBySeries(series));
+            seriesGroupRepository.deleteById(sg.getId());
+        });
     }
 
     @Transactional

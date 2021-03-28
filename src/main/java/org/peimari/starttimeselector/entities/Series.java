@@ -16,7 +16,7 @@ public class Series extends AbstractEntity {
 
     private String name;
 
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne
     private SeriesGroup seriesGroup;
 
 }
