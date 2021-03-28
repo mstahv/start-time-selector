@@ -50,9 +50,14 @@ public class UserService {
 
     @Transactional
     public void reserveStartTime(Competitor competitor, StartTime startTime) {
-        startTime.setCompetitor(competitor);
-        startTime.setSelfAssigned(true);
-        startTimeRepository.save(startTime);
+        competitor = competitorRepository.getOne(competitor.getId());
+        if(competitor.getStartTime() != null) {
+            throw new IllegalStateException("You already have a start time reserved. Probably another session picked a one for you.");
+        } else {
+            startTime.setCompetitor(competitor);
+            startTime.setSelfAssigned(true);
+            startTimeRepository.save(startTime);
+        }
     }
 
     @Transactional

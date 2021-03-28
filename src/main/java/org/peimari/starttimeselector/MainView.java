@@ -84,6 +84,8 @@ public class MainView extends VerticalLayout {
                 startTimeComboBox.addValueChangeListener(e -> {
                     try {
                         userService.reserveStartTime(competitor, e.getValue());
+                    } catch (IllegalStateException ex){
+                        Notification.show(ex.getMessage(), 3000, Notification.Position.MIDDLE);
                     } catch (Exception ex) {
                         Notification.show(getTranslation("failed-to-reserve"), 3000, Notification.Position.MIDDLE);
                     }
