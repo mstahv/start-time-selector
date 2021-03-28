@@ -29,9 +29,12 @@ public class ClassesAndClassGroupsEditor extends VerticalLayout {
     @Autowired
     AdminService adminService;
 
-    private Competition competition;
+    Competition competition;
 
     private Grid<SeriesGroup> groups = new Grid<>();
+    
+    @Autowired
+    private SeriesGroupStartTimeEditor startTimeEditor;
 
     @PostConstruct
     void init() {
@@ -42,6 +45,11 @@ public class ClassesAndClassGroupsEditor extends VerticalLayout {
         // TreeGrid here
 
         groups.addColumn(SeriesGroup::getName).setHeader("Series");
+        groups.addColumn(sg -> sg.getStartTimes().size()).setHeader("Starttimes");
+        groups.addColumn(sg -> adminService.countCompetitors(sg)).setHeader("Competitors");
+        groups.addComponentColumn(sg -> new Button("Edit start times", e -> {
+            startTimeEditor.setGroup(sg, competition, this);
+        }));
         groups.setSelectionMode(Grid.SelectionMode.MULTI);
 
         Button combine = new Button("Combine selected groups", e -> {
@@ -79,8 +87,8 @@ public class ClassesAndClassGroupsEditor extends VerticalLayout {
         Notification.show(s, 3000, Notification.Position.MIDDLE);
     }
 
-    private void listGroups() {
-        List<SeriesGroup> groups = adminService.getGroups(competition);
+    void listGroups() {
+        List<SeriesGroup> groups = adminService.getGroupsWithStartTimes(competition);
         this.groups.setItems(groups);
     }
 

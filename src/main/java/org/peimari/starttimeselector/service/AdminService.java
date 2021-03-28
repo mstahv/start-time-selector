@@ -5,13 +5,11 @@ import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import com.vaadin.flow.spring.annotation.VaadinSessionScope;
 import org.apache.commons.lang3.mutable.MutableInt;
 import org.peimari.starttimeselector.entities.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.context.annotation.SessionScope;
 
 @Service
 public class AdminService {
@@ -87,6 +85,21 @@ public class AdminService {
         return seriesGroupRepository.findAllByCompetition(competition);
     }
 
+    @Transactional
+    public List<SeriesGroup> getGroupsWithStartTimes(Competition competition) {
+        List<SeriesGroup> groups = seriesGroupRepository.findAllByCompetition(competition);
+        groups.forEach(g -> g.getStartTimes().size());
+        return groups;
+    }
+    
+    public long countCompetitors(SeriesGroup sg) {
+        long count = 0;
+        for (Series series : sg.getSeries()) {
+            count =+ competitorRepository.countAllBySeries(series);
+        }
+        return count;
+    }
+    
     @Transactional
     public List<Series> getSeries(Competition competition) {
         ArrayList<Series> series = new ArrayList<>();
@@ -234,6 +247,36 @@ public class AdminService {
 
     public List<Competitor> getCompetitors(Competition c) {
         return competitorRepository.findAllByCompetition(c);
+    }
+
+    public StartTime save(StartTime st) {
+        return startTimeRepository.save(st);
+    }
+
+    @Transactional
+    public List<StartTime> deleteStartTimes(Set<StartTime> toBeDeleted) {
+        ArrayList<StartTime> reservedStartTimes = new ArrayList<>();
+        toBeDeleted.forEach(st -> {
+            StartTime startTime = startTimeRepository.getOne(st.getId());
+            // don't delete reserved start times
+            if(startTime.getCompetitor() != null) {
+                reservedStartTimes.add(startTime);
+            } else {
+                startTimeRepository.delete(startTime);
+            }
+        });
+        return reservedStartTimes;
+    }
+
+    @Transactional
+    public void releaseStartTime(Competitor c) {
+        Competitor competitor = competitorRepository.getOne(c.getId());
+        StartTime startTime = competitor.getStartTime();
+        startTime.setSelfAssigned(false);
+        startTime.setCompetitor(null);
+        competitor.setStartTime(null);
+        startTimeRepository.save(startTime);
+        competitorRepository.save(competitor);
     }
 
 }

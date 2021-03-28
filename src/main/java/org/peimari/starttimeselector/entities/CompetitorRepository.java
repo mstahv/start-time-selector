@@ -13,6 +13,8 @@ public interface CompetitorRepository extends JpaRepository<Competitor, Long> {
 
     List<Competitor> findAllBySeries(Series s);
 
+    long countAllBySeries(Series s);
+
     List<Competitor> findAllBySeriesAndStartTimeIsNull(Series s);
 
     @Query("select c from Competitor c join c.series s join s.seriesGroup sg join sg.competition comp where comp = ?1")

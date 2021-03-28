@@ -1,7 +1,5 @@
 package org.peimari.starttimeselector;
 
-import com.vaadin.flow.component.AbstractField;
-import com.vaadin.flow.component.HasValue;
 import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.checkbox.Checkbox;
@@ -21,11 +19,9 @@ import com.vaadin.flow.component.page.Push;
 import com.vaadin.flow.component.select.Select;
 import com.vaadin.flow.component.tabs.Tab;
 import com.vaadin.flow.component.tabs.Tabs;
-import com.vaadin.flow.component.textfield.NumberField;
 import com.vaadin.flow.component.textfield.PasswordField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
-import com.vaadin.flow.function.SerializableFunction;
 import com.vaadin.flow.router.Route;
 import org.apache.commons.codec.digest.Crypt;
 import org.peimari.starttimeselector.entities.Competition;
@@ -38,10 +34,12 @@ import org.springframework.beans.factory.annotation.Value;
 import org.vaadin.firitin.components.DynamicFileDownloader;
 import org.vaadin.firitin.components.orderedlayout.VHorizontalLayout;
 import org.vaadin.firitin.components.upload.UploadFileHandler;
-import org.vaadin.firitin.fields.LocalDateTimeField;
 
 import javax.annotation.PostConstruct;
 import java.io.IOException;
+import java.util.List;
+import org.vaadin.firitin.components.button.DeleteButton;
+import org.vaadin.firitin.components.button.VButton;
 
 @Route
 @Push
@@ -64,7 +62,7 @@ public class CompetitionAdminView extends VerticalLayout {
     Tab raffle = new Tab("4. Raffle, download and close");
 
     private TextField name = new TextField("Name");
-    
+
     private DateTimePicker start = new DateTimePicker();
     private DateTimePicker end = new DateTimePicker();
     private TextField startIntervalSeconds = new TextField("Start time interval (seconds)");
@@ -77,6 +75,7 @@ public class CompetitionAdminView extends VerticalLayout {
     });
     private Button delete = new Button("Delete competition", e -> delete());
     private Grid<Competitor> competitorGrid = new Grid<>(Competitor.class);
+    private Paragraph compatitorCount = new Paragraph();
 
     VerticalLayout form = new VerticalLayout(
             new Hr(),
@@ -91,7 +90,7 @@ public class CompetitionAdminView extends VerticalLayout {
 
     @PostConstruct
     void init() {
-        
+
         start.setLabel("Start");
         end.setLabel("End");
 
@@ -121,11 +120,24 @@ public class CompetitionAdminView extends VerticalLayout {
                 return st.getTime().toString();
             }
         });
+
         competitorGrid.addComponentColumn(c -> {
-            return new Button(VaadinIcon.TRASH.create(), e -> {
-                adminService.deleteCompetitor(c);
-                listCompetitors();
-            });
+            final HorizontalLayout actions = new HorizontalLayout(
+                    new DeleteButton()
+                            .withIcon(VaadinIcon.TRASH.create())
+                            .withConfirmText("Are you sure you want to delete the competitor " + c.getName() + "?")
+                            .withConfirmHandler(() -> {
+                                adminService.deleteCompetitor(c);
+                                listCompetitors();
+                            })
+            );
+            if (c.getStartTime() != null) {
+                actions.add(new VButton("Release start time", e -> {
+                    adminService.releaseStartTime(c);
+                    listCompetitors();
+                }));
+            }
+            return actions;
         });
 
         tabs.addSelectedChangeListener(e -> {
@@ -138,7 +150,7 @@ public class CompetitionAdminView extends VerticalLayout {
 
                 content.add(new Paragraph("Be sure that previous step is properly configured. The file can be same IRMA csv file as used to load competitors. Uploading may take a while. Only competitors with valid series are saved."));
 
-                content.add(competitorGrid);
+                content.add(competitorGrid, compatitorCount);
                 listCompetitors();
 
                 Select<Series> seriesSelect = new Select<>();
@@ -166,7 +178,7 @@ public class CompetitionAdminView extends VerticalLayout {
                         // TODO, due to Upload bug this don't work unless push is enabled :-(
                         getUI().get().access(() -> {
                             notify(count + " competitors loaded from IRMA file!");
-                            competitorGrid.setItems(adminService.getCompetitors(binder.getBean()));
+                            listCompetitors();
                         });
                     } catch (IOException ex) {
                         ex.printStackTrace();
@@ -237,7 +249,9 @@ public class CompetitionAdminView extends VerticalLayout {
 
     private void listCompetitors() {
         Competition competition = binder.getBean();
-        competitorGrid.setItems(adminService.getCompetitors(competition));
+        final List<Competitor> competitors = adminService.getCompetitors(competition);
+        competitorGrid.setItems(competitors);
+        compatitorCount.setText("Total: " + competitors.size());
     }
 
     private void delete() {
