@@ -65,7 +65,7 @@ public class CompetitionAdminView extends VerticalLayout {
 
     private DateTimePicker start = new DateTimePicker();
     private DateTimePicker end = new DateTimePicker();
-    private TextField startIntervalSeconds = new TextField("Start time interval (seconds)");
+    private TextField startIntervalSeconds = new TextField("Default start time interval (seconds)");
     private Checkbox open = new Checkbox("Open for public");
     private Button save = new Button("Save");
     // TODO confirm button
@@ -91,8 +91,8 @@ public class CompetitionAdminView extends VerticalLayout {
     @PostConstruct
     void init() {
 
-        start.setLabel("Start");
-        end.setLabel("End");
+        start.setLabel("Start (default for series)");
+        end.setLabel("End (default for series)");
 
         createNew.addClickListener(e -> newCompetition());
         save.addClickListener(e -> save());
