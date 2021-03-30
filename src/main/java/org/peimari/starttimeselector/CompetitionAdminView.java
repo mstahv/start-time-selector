@@ -38,6 +38,8 @@ import org.vaadin.firitin.components.upload.UploadFileHandler;
 import javax.annotation.PostConstruct;
 import java.io.IOException;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.vaadin.firitin.components.button.DeleteButton;
 import org.vaadin.firitin.components.button.VButton;
 
@@ -186,7 +188,15 @@ public class CompetitionAdminView extends VerticalLayout {
                             listCompetitors();
                         });
                     } catch (IOException ex) {
-                        ex.printStackTrace();
+                        getUI().get().access(() -> {
+                            Notification.show(ex.getMessage());
+                        });
+                        Logger.getLogger(CompetitionAdminView.class.getName()).log(Level.SEVERE, null, ex);
+                    } catch (Exception ex) {
+                        getUI().get().access(() -> {
+                            Notification.show(ex.getMessage());
+                        });
+                        Logger.getLogger(CompetitionAdminView.class.getName()).log(Level.SEVERE, null, ex);
                     }
                 });
                 kilpailijoidenLataus.setUploadButton(new Button("Load competitors from IRM file..."));

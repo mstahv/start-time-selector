@@ -20,6 +20,8 @@ import javax.annotation.PostConstruct;
 import java.io.IOException;
 import java.util.List;
 import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 @SpringComponent
 @UIScope
@@ -74,8 +76,16 @@ public class ClassesAndClassGroupsEditor extends VerticalLayout {
                     listGroups();
                     notify("Classes loaded from IRMA file!");
                 });
-            } catch (IOException e) {
-                e.printStackTrace();
+            } catch (IOException ex) {
+                getUI().get().access(() -> {
+                    Notification.show(ex.getMessage());
+                });
+                Logger.getLogger(ClassesAndClassGroupsEditor.class.getName()).log(Level.SEVERE, null, ex);
+            } catch (Exception ex) {
+                getUI().get().access(() -> {
+                    Notification.show(ex.getMessage());
+                });
+                Logger.getLogger(ClassesAndClassGroupsEditor.class.getName()).log(Level.SEVERE, null, ex);
             }
         });
         ufh.setUploadButton(new Button("Load classes from IRMA file..."));

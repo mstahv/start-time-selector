@@ -43,7 +43,7 @@ public class AdminService {
         return competitionRepository.save(bean);
     }
 
-    public List<List<String>> readIrmaFile(InputStream inputStream) throws IOException {
+    public List<List<String>> readIrmaFile(InputStream inputStream) throws IOException, Exception {
         List<List<String>> records = new ArrayList<>();
         BufferedReader br = new BufferedReader(new InputStreamReader(inputStream, "ISO-8859-15"));
         String line;
@@ -51,11 +51,12 @@ public class AdminService {
             String[] values = line.split(DELIMITER);
             records.add(Arrays.asList(values));
         }
+        validateRecord(records.get(0));
         return records;
     }
 
     @Transactional
-    public void readInSeriesFromIrmaFile(InputStream inputStream, Competition c) throws IOException {
+    public void readInSeriesFromIrmaFile(InputStream inputStream, Competition c) throws IOException, Exception {
         List<List<String>> input = readIrmaFile(inputStream);
         Set<String> seriesNames = input.stream().map(l -> l.get(0)).collect(Collectors.toSet());
         seriesNames.forEach(name -> addSeriesAndGroup(c, name));
@@ -139,7 +140,7 @@ public class AdminService {
     }
 
     @Transactional
-    public int readInCompetitorsFromIrmaFile(InputStream inputStream, Competition competition) throws IOException {
+    public int readInCompetitorsFromIrmaFile(InputStream inputStream, Competition competition) throws IOException, Exception {
         MutableInt mutableInt = new MutableInt(0);
         List<List<String>> input = readIrmaFile(inputStream);
         List<SeriesGroup> allByCompetition = seriesGroupRepository.findAllByCompetition(competition);
@@ -283,6 +284,25 @@ public class AdminService {
         competitor.setStartTime(null);
         startTimeRepository.save(startTime);
         competitorRepository.save(competitor);
+    }
+
+    private void validateRecord(List<String> record) throws Exception {
+        // Sarja;Lisenssinumero;Emit;EmiTag;Nimi;Seura
+        // series;licenseid;emit;emittag;Name;club;
+        // Only first two fields and name are relevant
+        if(record.size() < 5
+                ||
+                record.get(0).isEmpty()
+                ||
+                record.get(4).isEmpty()
+                ) {
+            throw new Exception("The file is not in the format: series;licenseid;emit;emittag;Name;club;");
+        }
+        try {
+            Integer.parseInt(record.get(1));
+        } catch (Exception e) {
+            throw new Exception("The file is not in the format: series;licenseid;emit;emittag;Name;club;");
+        }
     }
 
 }
