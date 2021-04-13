@@ -43,7 +43,7 @@ public class AdminService {
         return competitionRepository.save(bean);
     }
 
-    public List<List<String>> readIrmaFile(InputStream inputStream) throws IOException, Exception {
+    public List<List<String>> readIrmaFile(InputStream inputStream, boolean validate) throws IOException, Exception {
         List<List<String>> records = new ArrayList<>();
         BufferedReader br = new BufferedReader(new InputStreamReader(inputStream, "ISO-8859-15"));
         String line;
@@ -51,19 +51,24 @@ public class AdminService {
             String[] values = line.split(DELIMITER);
             records.add(Arrays.asList(values));
         }
-        validateRecord(records.get(0));
+        if(validate) {
+            validateRecord(records.get(0));
+        }
         return records;
     }
-
+    
     @Transactional
     public void readInSeriesFromIrmaFile(InputStream inputStream, Competition c) throws IOException, Exception {
-        List<List<String>> input = readIrmaFile(inputStream);
+        List<List<String>> input = readIrmaFile(inputStream, false);
         Set<String> seriesNames = input.stream().map(l -> l.get(0)).collect(Collectors.toSet());
         seriesNames.forEach(name -> addSeriesAndGroup(c, name));
     }
 
     @Transactional
     private void addSeriesAndGroup(Competition competition, String s) {
+        if(s == null || s.isEmpty()) {
+            return;
+        }
         Series series = new Series();
         series.setName(s);
         SeriesGroup group = new SeriesGroup();
@@ -142,7 +147,7 @@ public class AdminService {
     @Transactional
     public int readInCompetitorsFromIrmaFile(InputStream inputStream, Competition competition) throws IOException, Exception {
         MutableInt mutableInt = new MutableInt(0);
-        List<List<String>> input = readIrmaFile(inputStream);
+        List<List<String>> input = readIrmaFile(inputStream, true);
         List<SeriesGroup> allByCompetition = seriesGroupRepository.findAllByCompetition(competition);
         Map<String, Series> seriesNameToEntity = new HashMap<>();
         allByCompetition.stream().forEach(group -> group.getSeries().stream().forEach(s -> seriesNameToEntity.put(s.getName(), s)));
@@ -303,6 +308,14 @@ public class AdminService {
         } catch (Exception e) {
             throw new Exception("The file is not in the format: series;licenseid;emit;emittag;Name;club;");
         }
+    }
+
+    @Transactional
+    public void removeAllCompetitors(Competition competition) {
+        competition = competitionRepository.getOne(competition.getId());
+        competition.getSeriesGroups()
+                .forEach(seriesGroup -> seriesGroup.getSeries()
+                        .forEach(series -> competitorRepository.deleteBySeries(series)));
     }
 
 }

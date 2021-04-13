@@ -27,7 +27,6 @@ import java.util.logging.Logger;
 @UIScope
 public class ClassesAndClassGroupsEditor extends VerticalLayout {
 
-
     @Autowired
     AdminService adminService;
 

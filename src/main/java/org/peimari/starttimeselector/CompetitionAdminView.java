@@ -157,7 +157,14 @@ public class CompetitionAdminView extends VerticalLayout {
 
                 content.add(new Paragraph("Be sure that previous step is properly configured. The file can be same IRMA csv file as used to load competitors. Uploading may take a while. Only competitors with valid series are saved."));
 
-                content.add(competitorGrid, compatitorCount);
+                DeleteButton removeAllCompetitors = new DeleteButton()
+                        .withText("Remove all competitors")
+                        .withConfirmHandler(() -> {
+                            adminService.removeAllCompetitors(binder.getBean());
+                            listCompetitors();
+                        });
+
+                content.add(competitorGrid, new HorizontalLayout(compatitorCount, removeAllCompetitors));
                 listCompetitors();
 
                 Select<Series> seriesSelect = new Select<>();
