@@ -1,6 +1,7 @@
 package org.peimari.starttimeselector.service;
 
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -45,7 +46,7 @@ public class AdminService {
 
     public List<List<String>> readIrmaFile(InputStream inputStream, boolean validate) throws IOException, Exception {
         List<List<String>> records = new ArrayList<>();
-        BufferedReader br = new BufferedReader(new InputStreamReader(inputStream, "ISO-8859-15"));
+        BufferedReader br = new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8));
         String line;
         while ((line = br.readLine()) != null) {
             String[] values = line.split(DELIMITER);
