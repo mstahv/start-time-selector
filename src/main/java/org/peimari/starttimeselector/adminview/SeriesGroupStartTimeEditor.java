@@ -1,4 +1,4 @@
-package org.peimari.starttimeselector;
+package org.peimari.starttimeselector.adminview;
 
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.datetimepicker.DateTimePicker;
@@ -44,7 +44,7 @@ public class SeriesGroupStartTimeEditor extends VerticalLayout {
     Button close = new Button("Close", e-> dialog.close());
     Button deleteSelected = new VButton("Delete selected", this::deleteSelected);
 
-    Paragraph newStartTimeHelp = new Paragraph("Add new start times for given time range. Note that the fuctionality doesn't check for existing start times, there may be duplicates if used improperly!");
+    Paragraph newStartTimeHelp = new Paragraph("Add new start times for given time range. Note that the functionality doesn't check for existing start times, there may be duplicates if used improperly!");
     private DateTimePicker newStart;
     private DateTimePicker newEnd;
     IntegerField startIntervalSeconds = new IntegerField("Interval (seconds)");
