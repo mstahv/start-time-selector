@@ -158,6 +158,7 @@ public class AdminService {
             competitor.setEmitNr(line.get(2));
             competitor.setLicenceId(line.get(1));
             competitor.setName(line.get(4));
+            competitor.setClub(line.get(5));
             Series s = seriesNameToEntity.get(line.get(0));
             if (s != null) {
                 competitor.setSeries(s);
@@ -197,7 +198,7 @@ public class AdminService {
     public void writeCsvForPirila(Competition competition, OutputStream os) {
         PrintWriter writer = new PrintWriter(os);
 
-        writer.println("ArvLahto-1;Sarja;Nimi;KilpId;Emit;SelfAssigned");
+        writer.println("ArvLahto-1;Sarja;Nimi;KilpId;Emit;Seura;SelfAssigned");
 
         competition = competitionRepository.getOne(competition.getId());
 
@@ -214,6 +215,8 @@ public class AdminService {
                     writer.print(competitor.getLicenceId());
                     writer.print(DELIMITER);
                     writer.print(competitor.getEmitNr());
+                    writer.print(DELIMITER);
+                    writer.print(competitor.getClub());
                     writer.print(DELIMITER);
                     writer.print(startTime.isSelfAssigned());
                     writer.print(DELIMITER);

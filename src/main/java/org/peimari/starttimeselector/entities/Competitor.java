@@ -15,6 +15,7 @@ public class Competitor extends AbstractEntity {
     private String name;
     private String licenceId;
     private String emitNr;
+    private String club;
 
     @ManyToOne
     private Series series;
