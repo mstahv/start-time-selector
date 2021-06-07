@@ -1,5 +1,14 @@
 package org.peimari.starttimeselector;
 
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
+import java.time.temporal.TemporalUnit;
+
+import org.peimari.starttimeselector.entities.Competition;
+import org.peimari.starttimeselector.entities.CompetitionRepository;
+import org.peimari.starttimeselector.entities.StartTimeRepository;
+import org.springframework.beans.factory.InitializingBean;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.MessageSource;
@@ -22,4 +31,5 @@ public class Application {
 		messageSource.setUseCodeAsDefaultMessage(true);
 		return messageSource;
 	}
+	
 }

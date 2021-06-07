@@ -1,11 +1,10 @@
 package org.peimari.starttimeselector.entities;
 
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
+import java.util.List;
 
-import javax.persistence.CascadeType;
-import javax.persistence.Entity;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToOne;
+import javax.persistence.*;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -18,10 +17,17 @@ import lombok.Setter;
 public class StartTime extends AbstractEntity {
 
     @ManyToOne
-    private SeriesGroup seriesGroup;
+    Competition competition;
     private LocalDateTime time;
-    @OneToOne(cascade = CascadeType.ALL)
-    private Competitor competitor;
-    private boolean selfAssigned;
+    private int seconds = 900;
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "startTime")
+    private List<Competitor> competitors;
+    private int maximumCompetitors = 50;
 
+
+    @Override
+    public String toString() {
+        return time.toLocalTime() + "-" + time.plus(seconds, ChronoUnit.SECONDS).toLocalTime();
+    }
+    
 }

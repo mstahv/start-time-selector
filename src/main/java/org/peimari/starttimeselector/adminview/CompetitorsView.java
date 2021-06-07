@@ -12,7 +12,6 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.router.PageTitle;
 import org.peimari.starttimeselector.entities.Competition;
 import org.peimari.starttimeselector.entities.Competitor;
-import org.peimari.starttimeselector.entities.Series;
 import org.peimari.starttimeselector.entities.StartTime;
 import org.peimari.starttimeselector.service.AdminService;
 import org.vaadin.firitin.components.button.DeleteButton;
@@ -72,22 +71,13 @@ public class CompetitorsView extends AbstractAdminView {
 
         add(new Paragraph("Be sure that previous step is properly configured. The file can be same IRMA csv file as used to load competitors. Uploading may take a while. Only competitors with valid series are saved."));
 
-        DeleteButton removeAllCompetitors = new DeleteButton()
-                .withText("Remove all competitors")
-                .withConfirmHandler(() -> {
-                    adminService.removeAllCompetitors(competition);
-                    listCompetitors();
-                });
 
-        Select<Series> seriesSelect = new Select<>();
-        seriesSelect.setItems(adminService.getSeries(competition));
-        seriesSelect.setTextRenderer(Series::getName);
         TextField license = new VTextField().withPlaceholder("LicenceNr");
         TextField name = new VTextField().withPlaceholder("Name");
         Button addNewCompetitor = new Button("Add new");
         addNewCompetitor.addClickListener(click -> {
-            if (seriesSelect.getValue() != null && !license.getValue().isEmpty() && !name.getValue().isEmpty()) {
-                adminService.addCompetitor(seriesSelect.getValue(), license.getValue(), name.getValue());
+            if (!license.getValue().isEmpty() && !name.getValue().isEmpty()) {
+                adminService.addCompetitor(competition, license.getValue(), name.getValue());
                 license.clear();
                 name.clear();
                 Notification.show("New competitor added");
@@ -96,7 +86,7 @@ public class CompetitorsView extends AbstractAdminView {
                 Notification.show("All fields must be filled to add a new competitor!");
             }
         });
-        add(new VHorizontalLayout(new Span("Add single competitor:"), license, name, seriesSelect, addNewCompetitor).alignAll(Alignment.CENTER));
+        add(new VHorizontalLayout(new Span("Add single competitor:"), license, name, addNewCompetitor).alignAll(Alignment.CENTER));
 
         UploadFileHandler competitorUpload = new UploadFileHandler((inputStream, s, s1) -> {
             try {
@@ -121,7 +111,7 @@ public class CompetitorsView extends AbstractAdminView {
         competitorUpload.setUploadButton(new Button("Load new competitors from IRM file..."));
         add(competitorUpload);
         addAndExpand(competitorGrid);
-        add(new VHorizontalLayout(openForStartTimeSelection, compatitorCount, removeAllCompetitors));
+        add(new VHorizontalLayout(openForStartTimeSelection, compatitorCount));
         listCompetitors();
 
     }

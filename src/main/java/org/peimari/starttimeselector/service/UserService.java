@@ -16,10 +16,6 @@ public class UserService {
     @Autowired
     CompetitorRepository competitorRepository;
     @Autowired
-    SeriesRepository seriesRepository;
-    @Autowired
-    SeriesGroupRepository seriesGroupRepository;
-    @Autowired
     StartTimeRepository startTimeRepository;
 
     public Collection<Competition> getCompetitions() {
@@ -28,12 +24,12 @@ public class UserService {
 
     @Transactional
     public List<Competitor> getCompetitorInfo(String licenceId) {
-        Competitor sample = new Competitor();
-        sample.setLicenceId(licenceId);
-        List<Competitor> all = competitorRepository.findAll(Example.of(sample));
+    	
+        List<Competitor> all = new ArrayList<>(competitorRepository.findAllByLicenceId(licenceId));
+
         for(Iterator<Competitor> it = all.iterator(); it.hasNext();) {
             Competitor c = it.next();
-            Competition competition = c.getSeries().getSeriesGroup().getCompetition();
+            Competition competition = c.getCompetition();
             if(competition.isOpen()) {
                 // lazy load possible start time and competition
                 c.getStartTime();
@@ -44,26 +40,31 @@ public class UserService {
         return all;
     }
 
-    public List<StartTime> findAvailableStartTimes(SeriesGroup seriesGroup) {
-        return startTimeRepository.findAllBySeriesGroupAndCompetitorIsNullOrderByTimeAsc(seriesGroup);
-    }
 
     @Transactional
     public void reserveStartTime(Competitor competitor, StartTime startTime) {
         competitor = competitorRepository.getOne(competitor.getId());
+        startTime = startTimeRepository.getOne(startTime.getId());
         if(competitor.getStartTime() != null) {
             throw new IllegalStateException("You already have a start time reserved. Probably another session picked a one for you.");
         } else {
-            startTime.setCompetitor(competitor);
-            startTime.setSelfAssigned(true);
+            startTime.getCompetitors().add(competitor);
+            competitor.setStartTime(startTime);
+            competitorRepository.save(competitor);
             startTimeRepository.save(startTime);
         }
     }
 
     @Transactional
-    public void releaseStartTime(StartTime startTime) {
-        startTime.setCompetitor(null);
-        startTime.setSelfAssigned(false);
-        startTimeRepository.save(startTime);
+    public void releaseStartTime(Competitor competitor) {
+    	StartTime startTime = competitor.getStartTime();
+    	competitor = competitorRepository.getOne(competitor.getId());
+    	competitor.setStartTime(null);
+    	competitorRepository.save(competitor);
     }
+
+	public List<StartTime> findAvailableStartTimes(Competitor competitor) {
+		Competition competition = competitor.getCompetition();
+		return startTimeRepository.findAllByCompetition(competition);
+	}
 }

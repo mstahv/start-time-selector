@@ -2,7 +2,6 @@ package org.peimari.starttimeselector.entities;
 
 import javax.persistence.Entity;
 import javax.persistence.ManyToOne;
-import javax.persistence.OneToOne;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -18,9 +17,9 @@ public class Competitor extends AbstractEntity {
     private String club;
 
     @ManyToOne
-    private Series series;
-    
-    @OneToOne(mappedBy="competitor")
+    private Competition competition;
+
+    @ManyToOne
     private StartTime startTime;
 
 }

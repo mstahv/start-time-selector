@@ -1,6 +1,7 @@
 package org.peimari.starttimeselector.entities;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.persistence.CascadeType;
@@ -19,8 +20,12 @@ public class Competition extends AbstractEntity {
     private LocalDateTime start;
     private LocalDateTime end;
     private boolean open;
-    private Integer startIntervalSeconds = 60;
+    private Integer startIntervalSeconds = 60*15;
     
     @OneToMany(mappedBy="competition", cascade = CascadeType.ALL)
-    private List<SeriesGroup> seriesGroups;
+    private List<StartTime> startTimes = new ArrayList<StartTime>();
+
+    @OneToMany(mappedBy="competition", cascade = CascadeType.ALL)
+    private List<Competitor> competitors = new ArrayList<Competitor>();
+
 }

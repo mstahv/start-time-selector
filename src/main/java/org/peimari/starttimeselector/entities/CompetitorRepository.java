@@ -11,15 +11,16 @@ import java.util.List;
 @Repository
 public interface CompetitorRepository extends JpaRepository<Competitor, Long> {
 
-    List<Competitor> findAllBySeries(Series s);
+//    List<Competitor> findAllBySeries(Series s);
 
-    long countAllBySeries(Series s);
+//    long countAllBySeries(Series s);
 
-    List<Competitor> findAllBySeriesAndStartTimeIsNull(Series s);
+//    List<Competitor> findAllBySeriesAndStartTimeIsNull(Series s);
 
-    @Query("select c from Competitor c join c.series s join s.seriesGroup sg join sg.competition comp where comp = ?1")
     List<Competitor> findAllByCompetition(Competition competition);
 
-    public void deleteBySeries(Series series);
+	List<Competitor> findAllByLicenceId(String licenceId);
+
+//    public void deleteBySeries(Series series);
 
 }
