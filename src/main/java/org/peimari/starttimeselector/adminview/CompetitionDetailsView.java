@@ -9,12 +9,13 @@ import com.vaadin.flow.router.Route;
 import org.peimari.starttimeselector.entities.Competition;
 import org.peimari.starttimeselector.service.AdminService;
 import org.vaadin.firitin.components.button.VButton;
+import org.vaadin.firitin.components.textfield.VTextField;
 
 @Route(layout = AdminMainLayout.class)
 @PageTitle("1. Competition details")
 public class CompetitionDetailsView extends AbstractAdminView {
 
-    private TextField name = new TextField("Name");
+    private TextField name = new VTextField("Name").withWidth("100%");
     private DateTimePicker start = new DateTimePicker();
     private DateTimePicker end = new DateTimePicker();
     private TextField startIntervalSeconds = new TextField("Default start time interval (seconds)");
