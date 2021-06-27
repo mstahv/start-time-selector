@@ -96,7 +96,7 @@ public class AdminService {
 
     @Transactional
     public List<SeriesGroup> getGroupsWithStartTimes(Competition competition) {
-        List<SeriesGroup> groups = seriesGroupRepository.findAllByCompetition(competition);
+        List<SeriesGroup> groups = seriesGroupRepository.findAllByCompetitionOrderByName(competition);
         groups.forEach(g -> g.getStartTimes().size());
         return groups;
     }
@@ -112,7 +112,7 @@ public class AdminService {
     @Transactional
     public List<Series> getSeries(Competition competition) {
         ArrayList<Series> series = new ArrayList<>();
-        seriesGroupRepository.findAllByCompetition(competition).stream().forEach(sg -> series.addAll(sg.getSeries()));
+        seriesGroupRepository.findAllByCompetitionOrderByName(competition).stream().forEach(sg -> series.addAll(sg.getSeries()));
         return series;
     }
 

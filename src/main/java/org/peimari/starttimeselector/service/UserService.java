@@ -41,6 +41,7 @@ public class UserService {
                 it.remove();
             }
         }
+        all.sort(Comparator.comparing(c -> c.getSeries().getSeriesGroup().getCompetition().getStart()));
         return all;
     }
 

@@ -11,4 +11,7 @@ public interface SeriesGroupRepository extends JpaRepository<SeriesGroup, Long> 
 
     @EntityGraph(attributePaths = { "series" })
     List<SeriesGroup> findAllByCompetition(Competition competition);
+
+    @EntityGraph(attributePaths = { "series" })
+    List<SeriesGroup> findAllByCompetitionOrderByName(Competition competition);
 }

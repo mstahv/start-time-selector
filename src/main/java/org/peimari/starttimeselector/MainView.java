@@ -1,6 +1,8 @@
 package org.peimari.starttimeselector;
 
+import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.html.*;
 import com.vaadin.flow.component.notification.Notification;
@@ -13,6 +15,7 @@ import org.peimari.starttimeselector.entities.StartTime;
 import org.peimari.starttimeselector.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
+import org.vaadin.firitin.components.button.VButton;
 
 import javax.annotation.PostConstruct;
 import java.text.MessageFormat;
@@ -36,6 +39,7 @@ public class MainView extends VerticalLayout {
 
     @PostConstruct
     void init() {
+        removeAll();
         header.setText(getTranslation("mainview.header"));
         sectionHeader.setText(getTranslation("mainview.sectionHeader"));
         license.setLabel(getTranslation("license"));
@@ -44,10 +48,17 @@ public class MainView extends VerticalLayout {
 
         add(header, sectionHeader, license, login, feedback);
         login.addClickListener(e -> login());
+        login.addClickShortcut(Key.ENTER);
     }
 
     private void login() {
-        listCompetitions(userService.getCompetitorInfo(license.getValue()));
+        List<Competitor> competitorList = userService.getCompetitorInfo(license.getValue());
+        listCompetitions(competitorList);
+        if(!competitorList.isEmpty()) {
+            add(new Button(getTranslation("choose.foranoter"), e -> {
+                MainView.this.init();
+            }));
+        }
     }
 
     private void listCompetitions(List<Competitor> competitorInfo) {
@@ -56,7 +67,6 @@ public class MainView extends VerticalLayout {
         } else {
             removeAll();
             add(header);
-
             competitorInfo.forEach(c -> {
                 add(new StartTimeSelector(c));
             });
@@ -95,13 +105,10 @@ public class MainView extends VerticalLayout {
             } else {
                 add(new H3(MessageFormat.format(getTranslation("preferre-start-time-is.0"), competitor.getStartTime().getTime().toLocalTime())));
                 add(new Paragraph(getTranslation("whatnext")));
-                add(new Button(getTranslation("choose.new"), e -> {
+                add(new VButton(getTranslation("choose.new"), e -> {
                     userService.releaseStartTime(competitor.getStartTime());
                     login();
-                }));
-                add(new Button(getTranslation("choose.foranoter"), e -> {
-                    MainView.this.init();
-                }));
+                }).withThemeVariants(ButtonVariant.LUMO_SMALL));
             }
 
         }
