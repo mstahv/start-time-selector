@@ -6,6 +6,7 @@ import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import com.vaadin.flow.component.notification.Notification;
 import org.apache.commons.lang3.mutable.MutableInt;
 import org.peimari.starttimeselector.entities.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -153,17 +154,21 @@ public class AdminService {
         Map<String, Series> seriesNameToEntity = new HashMap<>();
         allByCompetition.stream().forEach(group -> group.getSeries().stream().forEach(s -> seriesNameToEntity.put(s.getName(), s)));
         input.stream().forEach(line -> {
-            //H21A;1504;500728;;Heikkilä Tero;PR;
-            Competitor competitor = new Competitor();
-            competitor.setEmitNr(line.get(2));
-            competitor.setLicenceId(line.get(1));
-            competitor.setName(line.get(4));
-            competitor.setClub(line.get(5));
-            Series s = seriesNameToEntity.get(line.get(0));
-            if (s != null) {
-                competitor.setSeries(s);
-                competitorRepository.save(competitor);
-                mutableInt.increment();
+            try {
+                //H21A;1504;500728;;Heikkilä Tero;PR;
+                Competitor competitor = new Competitor();
+                competitor.setEmitNr(line.get(2));
+                competitor.setLicenceId(line.get(1));
+                competitor.setName(line.get(4));
+                competitor.setClub(line.get(5));
+                Series s = seriesNameToEntity.get(line.get(0));
+                if (s != null) {
+                    competitor.setSeries(s);
+                    competitorRepository.save(competitor);
+                    mutableInt.increment();
+                }
+            } catch (Exception e) {
+                throw new RuntimeException("Reading competitors failed at line: " + line);
             }
         });
         return mutableInt.intValue();
