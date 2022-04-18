@@ -50,6 +50,10 @@ public class AdminService {
         BufferedReader br = new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8));
         String line;
         while ((line = br.readLine()) != null) {
+            if(line.startsWith("\uFEFF")) {
+                // special handling for Kokkens special characters :-)
+                line = line.substring(1);
+            }
             String[] values = line.split(DELIMITER);
             records.add(Arrays.asList(values));
         }
@@ -63,7 +67,10 @@ public class AdminService {
     public void readInSeriesFromIrmaFile(InputStream inputStream, Competition c) throws IOException, Exception {
         List<List<String>> input = readIrmaFile(inputStream, false);
         Set<String> seriesNames = input.stream().map(l -> l.get(0)).collect(Collectors.toSet());
-        seriesNames.forEach(name -> addSeriesAndGroup(c, name));
+        seriesNames.forEach(name -> {
+            System.out.println(name.length());
+            addSeriesAndGroup(c, name);
+        });
     }
 
     @Transactional
