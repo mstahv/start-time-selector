@@ -61,6 +61,11 @@ public class ClassesAndClassGroupsEditor extends AbstractAdminView {
             adminService.combineSeriesGroups(seriesGroupsToCombine);
             listGroups();
         });
+        Button uncombine = new Button("Break selected groups", e -> {
+            Set<SeriesGroup> seriesGroupsToBreak = groups.asMultiSelect().getValue();
+            adminService.breakSeriesGroups(seriesGroupsToBreak);
+            listGroups();
+        });
         Button delete = new Button("Delete selected groups", e -> {
             Set<SeriesGroup> seriesGroups = groups.asMultiSelect().getValue();
             adminService.deleteSeriesGroups(seriesGroups);
@@ -89,7 +94,7 @@ public class ClassesAndClassGroupsEditor extends AbstractAdminView {
         });
         ufh.setUploadButton(new Button("Load new classes from IRMA file..."));
 
-        add(new VHorizontalLayout(combine, delete, ufh).alignAll(Alignment.CENTER));
+        add(new VHorizontalLayout(combine, uncombine, delete, ufh).alignAll(Alignment.CENTER));
         addAndExpand(groups);
         listGroups();
     }
