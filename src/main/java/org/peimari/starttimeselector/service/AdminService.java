@@ -6,7 +6,6 @@ import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import com.vaadin.flow.component.notification.Notification;
 import org.apache.commons.lang3.mutable.MutableInt;
 import org.peimari.starttimeselector.entities.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,19 +49,19 @@ public class AdminService {
         BufferedReader br = new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8));
         String line;
         while ((line = br.readLine()) != null) {
-            if(line.startsWith("\uFEFF")) {
+            if (line.startsWith("\uFEFF")) {
                 // special handling for Kokkens special characters :-)
                 line = line.substring(1);
             }
             String[] values = line.split(DELIMITER);
             records.add(Arrays.asList(values));
         }
-        if(validate) {
+        if (validate) {
             validateRecord(records.get(0));
         }
         return records;
     }
-    
+
     @Transactional
     public void readInSeriesFromIrmaFile(InputStream inputStream, Competition c) throws IOException, Exception {
         List<List<String>> input = readIrmaFile(inputStream, false);
@@ -73,26 +72,16 @@ public class AdminService {
         });
     }
 
-    @Transactional
+
     private void addSeriesAndGroup(Competition competition, String s) {
-        if(s == null || s.isEmpty()) {
+        if (s == null || s.isEmpty()) {
             return;
         }
         Series series = new Series();
         series.setName(s);
         SeriesGroup group = new SeriesGroup();
         group.setName(s);
-        group.setCompetition(competition);
-        series.setSeriesGroup(group);
-        LocalDateTime start = competition.getStart();
-        LocalDateTime end = competition.getEnd();
-        while (start.isBefore(end)) {
-            StartTime st = new StartTime();
-            st.setSeriesGroup(group);
-            st.setTime(start);
-            group.getStartTimes().add(st);
-            start = start.plusSeconds(competition.getStartIntervalSeconds());
-        }
+        createSeries(competition, group, series);
         seriesGroupRepository.save(group);
         seriesRepository.save(series);
     }
@@ -108,7 +97,7 @@ public class AdminService {
         groups.forEach(g -> g.getStartTimes().size());
         return groups;
     }
-    
+
     public long countCompetitors(SeriesGroup sg) {
         long count = 0;
         for (Series series : sg.getSeries()) {
@@ -116,7 +105,7 @@ public class AdminService {
         }
         return count;
     }
-    
+
     @Transactional
     public List<Series> getSeries(Competition competition) {
         ArrayList<Series> series = new ArrayList<>();
@@ -142,6 +131,47 @@ public class AdminService {
                 seriesGroupRepository.deleteById(next.getId());
             }
             seriesGroupRepository.save(master);
+        }
+    }
+
+    @Transactional
+    public void breakSeriesGroups(Set<SeriesGroup> seriesGroupsToBreak) {
+        if (!seriesGroupsToBreak.isEmpty()) {
+            Competition competition = competitionRepository.getById(seriesGroupsToBreak.iterator().next()
+                    .getCompetition().getId());
+            for (SeriesGroup seriesGroup : seriesGroupsToBreak) {
+                if (seriesGroup.getSeries().size() > 1) {
+                    List<Series> series = seriesGroup.getSeries();
+                    Series firstSeries = series.remove(0);
+                    seriesGroup.setSeries(new ArrayList<>());
+                    seriesGroup.getSeries().add(firstSeries);
+                    seriesGroup.setName(firstSeries.getName());
+
+                    for (Series otherSeries : series) {
+                        SeriesGroup newGroup = new SeriesGroup();
+                        newGroup.setName(otherSeries.getName());
+                        createSeries(competition, newGroup, otherSeries);
+                        seriesGroupRepository.save(newGroup);
+                        seriesRepository.save(otherSeries);
+                    }
+                    seriesRepository.save(firstSeries);
+                    seriesGroupRepository.save(seriesGroup);
+                }
+            }
+        }
+    }
+
+    private void createSeries(Competition competition, SeriesGroup group, Series series) {
+        group.setCompetition(competition);
+        series.setSeriesGroup(group);
+        LocalDateTime start = competition.getStart();
+        LocalDateTime end = competition.getEnd();
+        while (start.isBefore(end)) {
+            StartTime st = new StartTime();
+            st.setSeriesGroup(group);
+            st.setTime(start);
+            group.getStartTimes().add(st);
+            start = start.plusSeconds(competition.getStartIntervalSeconds());
         }
     }
 
@@ -287,7 +317,7 @@ public class AdminService {
         toBeDeleted.forEach(st -> {
             StartTime startTime = startTimeRepository.getOne(st.getId());
             // don't delete reserved start times
-            if(startTime.getCompetitor() != null) {
+            if (startTime.getCompetitor() != null) {
                 reservedStartTimes.add(startTime);
             } else {
                 startTimeRepository.delete(startTime);
@@ -311,12 +341,12 @@ public class AdminService {
         // Sarja;Lisenssinumero;Emit;EmiTag;Nimi;Seura
         // series;licenseid;emit;emittag;Name;club;
         // Only first two fields and name are relevant
-        if(record.size() < 5
+        if (record.size() < 5
                 ||
                 record.get(0).isEmpty()
                 ||
                 record.get(4).isEmpty()
-                ) {
+        ) {
             throw new Exception("The file is not in the format: series;licenseid;emit;emittag;Name;club;");
         }
         try {
@@ -333,5 +363,6 @@ public class AdminService {
                 .forEach(seriesGroup -> seriesGroup.getSeries()
                         .forEach(series -> competitorRepository.deleteBySeries(series)));
     }
+
 
 }
