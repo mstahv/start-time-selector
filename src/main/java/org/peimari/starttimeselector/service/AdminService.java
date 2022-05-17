@@ -197,7 +197,8 @@ public class AdminService {
                 competitor.setEmitNr(line.get(2));
                 competitor.setLicenceId(line.get(1));
                 competitor.setName(line.get(4));
-                competitor.setClub(line.get(5));
+                //club may be empty
+                competitor.setClub(line.size() > 5 ? line.get(5) : "");
                 Series s = seriesNameToEntity.get(line.get(0));
                 if (s != null) {
                     competitor.setSeries(s);
