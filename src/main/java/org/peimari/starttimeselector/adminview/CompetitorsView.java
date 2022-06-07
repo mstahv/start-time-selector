@@ -22,6 +22,7 @@ import org.vaadin.firitin.components.textfield.VTextField;
 import org.vaadin.firitin.components.upload.UploadFileHandler;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -121,13 +122,22 @@ public class CompetitorsView extends AbstractAdminView {
         competitorUpload.setUploadButton(new Button("Load new competitors from IRM file..."));
         add(competitorUpload);
         addAndExpand(competitorGrid);
-        add(new VHorizontalLayout(openForStartTimeSelection, compatitorCount, removeAllCompetitors));
+        add(compatitorCount, new VHorizontalLayout(openForStartTimeSelection, removeAllCompetitors));
         listCompetitors();
 
     }
 
     private void listCompetitors() {
-        competitorGrid.setItems(adminService.getCompetitors(competition));
+        List<Competitor> competitors = adminService.getCompetitors(competition);
+        competitorGrid.setItems(competitors);
+        long reserved = competitors.stream().filter(c -> c.getStartTime() != null).count();
+        float percent = competitors.size() == 0 ? 0 : 100*((float) reserved)/(float)competitors.size();
+        compatitorCount.setText(String.format(
+                "%d competitors, %d (%.0f%%) has reserved a start time",
+                competitors.size(),
+                reserved,
+                percent
+        ));
     }
 
     private void openForSelection() {
