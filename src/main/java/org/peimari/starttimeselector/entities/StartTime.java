@@ -24,4 +24,8 @@ public class StartTime extends AbstractEntity {
     private Competitor competitor;
     private boolean selfAssigned;
 
+    @Override
+    public String toString() {
+        return time.getHour() + ":" + time.getMinute();
+    }
 }

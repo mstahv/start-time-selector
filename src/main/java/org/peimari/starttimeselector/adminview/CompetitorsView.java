@@ -15,6 +15,7 @@ import org.peimari.starttimeselector.entities.Competitor;
 import org.peimari.starttimeselector.entities.Series;
 import org.peimari.starttimeselector.entities.StartTime;
 import org.peimari.starttimeselector.service.AdminService;
+import org.vaadin.firitin.components.DynamicFileDownloader;
 import org.vaadin.firitin.components.button.DeleteButton;
 import org.vaadin.firitin.components.button.VButton;
 import org.vaadin.firitin.components.orderedlayout.VHorizontalLayout;
@@ -122,7 +123,12 @@ public class CompetitorsView extends AbstractAdminView {
         competitorUpload.setUploadButton(new Button("Load new competitors from IRM file..."));
         add(competitorUpload);
         addAndExpand(competitorGrid);
-        add(compatitorCount, new VHorizontalLayout(openForStartTimeSelection, removeAllCompetitors));
+
+        DynamicFileDownloader downloadCompetitors = new DynamicFileDownloader("Download competitors", "competitors.csv" , outputStream -> {
+            adminService.writeCompetitorsCsv(competition, outputStream);
+      });
+
+        add(compatitorCount, new VHorizontalLayout(openForStartTimeSelection, removeAllCompetitors, downloadCompetitors));
         listCompetitors();
 
     }

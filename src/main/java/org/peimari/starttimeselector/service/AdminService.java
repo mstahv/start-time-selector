@@ -365,4 +365,20 @@ public class AdminService {
     }
 
 
+    @Transactional
+    public void writeCompetitorsCsv(Competition competition, OutputStream outputStream) {
+        List<Competitor> allByCompetition = competitorRepository.findAllByCompetition(competition);
+
+        OutputStreamWriter writer = new OutputStreamWriter(outputStream);
+
+        allByCompetition.forEach(c -> {
+            try {
+                writer.write(c.getLicenceId() + "," + c.getName() + "," + c.getSeries().getName() + "," + c.getStartTime() + "\n");
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        });
+
+
+    }
 }
