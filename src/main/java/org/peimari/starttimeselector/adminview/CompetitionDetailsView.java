@@ -16,8 +16,8 @@ import org.vaadin.firitin.components.textfield.VTextField;
 public class CompetitionDetailsView extends AbstractAdminView {
 
     private TextField name = new VTextField("Name").withWidth("100%");
-    private DateTimePicker start = new DateTimePicker();
-    private DateTimePicker end = new DateTimePicker();
+    private DateTimePicker startDate = new DateTimePicker();
+    private DateTimePicker endDate = new DateTimePicker();
     private TextField startIntervalSeconds = new TextField("Default start time interval (seconds)");
     private Checkbox open = new Checkbox("Open for public");
     private VButton save = new VButton("Save", this::save);
@@ -27,7 +27,7 @@ public class CompetitionDetailsView extends AbstractAdminView {
     public CompetitionDetailsView(AdminControl adminControl, AdminService adminService) {
         super(adminControl, adminService);
 
-        add(name, open, start, end, startIntervalSeconds, save);
+        add(name, open, startDate, endDate, startIntervalSeconds, save);
 
         startIntervalSeconds.setPattern("[0-9]");
         binder.forMemberField(startIntervalSeconds).withConverter(this::parseIntOrDefault, i -> Integer.toString(i));

@@ -35,8 +35,8 @@ public class AdminService {
     public Competition createNewCompetition() {
         Competition c = new Competition();
         c.setName("Your competition name here");
-        c.setStart(LocalDateTime.now().withNano(0).withSecond(0));
-        c.setEnd(LocalDateTime.now().plusHours(5).withNano(0).withSecond(0));
+        c.setStartDate(LocalDateTime.now().withNano(0).withSecond(0));
+        c.setEndDate(LocalDateTime.now().plusHours(5).withNano(0).withSecond(0));
         return competitionRepository.save(c);
     }
 
@@ -164,8 +164,8 @@ public class AdminService {
     private void createSeries(Competition competition, SeriesGroup group, Series series) {
         group.setCompetition(competition);
         series.setSeriesGroup(group);
-        LocalDateTime start = competition.getStart();
-        LocalDateTime end = competition.getEnd();
+        LocalDateTime start = competition.getStartDate();
+        LocalDateTime end = competition.getEndDate();
         while (start.isBefore(end)) {
             StartTime st = new StartTime();
             st.setSeriesGroup(group);

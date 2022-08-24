@@ -95,8 +95,8 @@ public class SeriesGroupStartTimeEditor extends VerticalLayout {
         this.editor = editor;
         header.setText("Edit start times for " + sg.getName());
         startTimes = new ArrayList(sg.getStartTimes());
-        newStart.setValue(competition.getStart());
-        newEnd.setValue(competition.getEnd());
+        newStart.setValue(competition.getStartDate());
+        newEnd.setValue(competition.getEndDate());
         startIntervalSeconds.setValue(competition.getStartIntervalSeconds());
 
         listGrid();

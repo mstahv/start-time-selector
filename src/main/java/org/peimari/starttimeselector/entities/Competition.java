@@ -16,11 +16,14 @@ import lombok.Setter;
 public class Competition extends AbstractEntity {
     
     private String name;
-    private LocalDateTime start;
-    private LocalDateTime end;
+    private LocalDateTime startDate;
+    private LocalDateTime endDate;
     private boolean open;
     private Integer startIntervalSeconds = 60;
     
     @OneToMany(mappedBy="competition", cascade = CascadeType.ALL)
     private List<SeriesGroup> seriesGroups;
+    
+    
+    
 }
