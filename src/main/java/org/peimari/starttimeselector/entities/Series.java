@@ -1,8 +1,7 @@
 package org.peimari.starttimeselector.entities;
 
-import javax.persistence.CascadeType;
-import javax.persistence.Entity;
-import javax.persistence.ManyToOne;
+import jakarta.persistence.Entity;
+import jakarta.persistence.ManyToOne;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;

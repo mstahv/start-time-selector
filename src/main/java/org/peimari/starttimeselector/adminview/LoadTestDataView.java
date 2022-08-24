@@ -4,7 +4,6 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.VaadinServlet;
-import org.apache.commons.io.IOUtils;
 import org.peimari.starttimeselector.entities.Competition;
 import org.peimari.starttimeselector.service.AdminService;
 

@@ -4,7 +4,6 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.Paragraph;
 import com.vaadin.flow.component.html.Span;
-import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.select.Select;
@@ -54,14 +53,10 @@ public class CompetitorsView extends AbstractAdminView {
 
         competitorGrid.addComponentColumn(c -> {
             final HorizontalLayout actions = new HorizontalLayout(
-                    new DeleteButton()
-                            .withIcon(VaadinIcon.TRASH.create())
-                            .withConfirmText("Are you sure you want to delete the competitor " + c.getName() + "?")
-                            .withConfirmHandler(() -> {
+                    new DeleteButton(() -> {
                                 adminService.deleteCompetitor(c);
                                 listCompetitors();
-                            })
-            );
+                            }));
             if (c.getStartTime() != null) {
                 actions.add(new VButton("Release start time", e -> {
                     adminService.releaseStartTime(c);
@@ -74,12 +69,10 @@ public class CompetitorsView extends AbstractAdminView {
 
         add(new Paragraph("Be sure that previous step is properly configured. The file can be same IRMA csv file as used to load competitors. Uploading may take a while. Only competitors with valid series are saved."));
 
-        DeleteButton removeAllCompetitors = new DeleteButton()
-                .withText("Remove all competitors")
-                .withConfirmHandler(() -> {
+        Button removeAllCompetitors = new DeleteButton(() -> {
                     adminService.removeAllCompetitors(competition);
                     listCompetitors();
-                });
+                }).withText("Remove all competitors");
 
         Select<Series> seriesSelect = new Select<>();
         seriesSelect.setItems(adminService.getSeries(competition));

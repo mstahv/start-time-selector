@@ -17,10 +17,9 @@ public class RaffleAndCloseView extends AbstractAdminView implements BeforeEnter
         adminService.writeCsvForPirila(adminControl.getCompetition(), os);
     });
 
-    private DeleteButton delete = new DeleteButton()
-            .withText("Delete competition")
-            .withPromptText("Do you really want to delete the competition form the system?")
-            .withConfirmHandler(this::delete);
+    private Button delete = new DeleteButton(this::delete)
+            .withConfirmationPrompt("Do you really want to delete the competition form the system?")
+            .withText("Delete competition");
 
     public RaffleAndCloseView(AdminControl adminControl, AdminService adminService) {
         super(adminControl, adminService);
