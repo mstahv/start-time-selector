@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>2.7.3</version>
+        <version>3.0.0-M4</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>org.peimari</groupId>
@@ -16,7 +16,7 @@
 
     <properties>
         <java.version>17</java.version>
-        <vaadin.version>23.1.7</vaadin.version>
+        <vaadin.version>23.2.0.beta4</vaadin.version>
     </properties>
 
     <dependencies>
@@ -71,6 +71,13 @@
         <dependencies>
             <dependency>
                 <groupId>com.vaadin</groupId>
+                <artifactId>flow-bom</artifactId>
+                <version>24.0.0.alpha1</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>com.vaadin</groupId>
                 <artifactId>vaadin-bom</artifactId>
                 <version>${vaadin.version}</version>
                 <type>pom</type>
@@ -96,7 +103,51 @@
             <id>vaadin-addons</id>
             <url>https://maven.vaadin.com/vaadin-addons</url>
         </repository>
+        <repository>
+            <id>spring-milestones</id>
+            <name>Spring Milestones</name>
+            <url>https://repo.spring.io/milestone</url>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </repository>
+        <repository>
+            <id>vaadin-prereleases</id>
+            <url>https://maven.vaadin.com/vaadin-prereleases</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <!-- Enable for SNAPSHOTS releases -->
+                <enabled>true</enabled>
+            </snapshots>
+        </repository>
+        <repository>
+            <id>apache snapshots</id>
+            <url>https://repository.apache.org/content/repositories/snapshots</url>
+        </repository>
     </repositories>
+    <pluginRepositories>
+        <pluginRepository>
+            <id>spring-milestones</id>
+            <name>Spring Milestones</name>
+            <url>https://repo.spring.io/milestone</url>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </pluginRepository>
+        <pluginRepository>
+            <id>vaadin-prereleases</id>
+            <url>https://maven.vaadin.com/vaadin-prereleases</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <!-- Enable for SNAPSHOTS releases -->
+                <enabled>true</enabled>
+            </snapshots>
+        </pluginRepository>
+    </pluginRepositories>
 
     <profiles>
         <profile>
