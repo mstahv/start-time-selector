@@ -54,13 +54,12 @@ public class CompetitorsView extends AbstractAdminView {
 
         competitorGrid.addComponentColumn(c -> {
             final HorizontalLayout actions = new HorizontalLayout(
-                    new DeleteButton()
-                            .withIcon(VaadinIcon.TRASH.create())
-                            .withConfirmText("Are you sure you want to delete the competitor " + c.getName() + "?")
-                            .withConfirmHandler(() -> {
+                    new DeleteButton(() -> {
                                 adminService.deleteCompetitor(c);
                                 listCompetitors();
                             })
+                            .withConfirmationPrompt("Are you sure you want to delete the competitor " + c.getName() + "?")
+                            .withIcon(VaadinIcon.TRASH.create())
             );
             if (c.getStartTime() != null) {
                 actions.add(new VButton("Release start time", e -> {
@@ -74,12 +73,10 @@ public class CompetitorsView extends AbstractAdminView {
 
         add(new Paragraph("Be sure that previous step is properly configured. The file can be same IRMA csv file as used to load competitors. Uploading may take a while. Only competitors with valid series are saved."));
 
-        DeleteButton removeAllCompetitors = new DeleteButton()
-                .withText("Remove all competitors")
-                .withConfirmHandler(() -> {
+        DeleteButton removeAllCompetitors = new DeleteButton(() -> {
                     adminService.removeAllCompetitors(competition);
                     listCompetitors();
-                });
+                }).withButttonCaption("Remove all competitors");
 
         Select<Series> seriesSelect = new Select<>();
         seriesSelect.setItems(adminService.getSeries(competition));
