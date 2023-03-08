@@ -12,7 +12,7 @@ Built with:
 
 To develop this further or try locally how it works:
 
- * Install JDK 11
+ * Install JDK 17
  * Install Maven and/or Java IDE such as IntelliJ IDEA
  * Clone the project to your local workstation, run the Application class from your IDE or execute `mvn spring-boot:run` from CLI.
  * App will be running locally at http://localhost:8080/ and the more interesting admin part in http://localhost:8080/admin
