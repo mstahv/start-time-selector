@@ -29,7 +29,7 @@ public class CompetitionDetailsView extends AbstractAdminView {
 
         add(name, open, start, end, startIntervalSeconds, save);
 
-        startIntervalSeconds.setPattern("[0-9]");
+        startIntervalSeconds.setPattern("[0-9]+");
         binder.forMemberField(startIntervalSeconds).withConverter(this::parseIntOrDefault, i -> Integer.toString(i));
         binder.bindInstanceFields(this);
 
