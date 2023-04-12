@@ -126,7 +126,7 @@ public class SeriesGroupStartTimeEditor extends VerticalLayout {
                 new HorizontalLayout(deleteSelected),
                 grid, addNewStartTimes, close
         );
-        grid.addColumn(st -> st.getTime());
+        grid.addColumn(st -> st.getTime()).setHeader("Time");
         grid.setSelectionMode(Grid.SelectionMode.MULTI);
         
         dialog.setWidth("90%");
