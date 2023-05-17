@@ -3,6 +3,7 @@ package org.peimari.starttimeselector.service;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -245,11 +246,13 @@ public class AdminService {
 
         competition = competitionRepository.getOne(competition.getId());
 
+        DateTimeFormatter df = DateTimeFormatter.ofPattern("HH:mm:ss");
+
         competition.getSeriesGroups().forEach(seriesGroup -> {
             seriesGroup.getStartTimes().forEach(startTime -> {
                 Competitor competitor = startTime.getCompetitor();
                 if (competitor != null) {
-                    writer.print(startTime.getTime().toLocalTime().toString());
+                    writer.print(startTime.getTime().format(df));
                     writer.print(DELIMITER);
                     writer.print(competitor.getSeries().getName());
                     writer.print(DELIMITER);

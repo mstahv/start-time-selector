@@ -26,6 +26,6 @@ public class StartTime extends AbstractEntity {
 
     @Override
     public String toString() {
-        return "%02d:%02d".formatted(time.getHour(), time.getMinute());
+        return "%02d:%02d:%02d".formatted(time.getHour(), time.getMinute(), time.getSecond());
     }
 }
