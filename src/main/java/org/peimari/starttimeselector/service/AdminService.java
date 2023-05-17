@@ -371,15 +371,14 @@ public class AdminService {
         List<Competitor> allByCompetition = competitorRepository.findAllByCompetition(competition);
 
         OutputStreamWriter writer = new OutputStreamWriter(outputStream);
-
-        allByCompetition.forEach(c -> {
-            try {
+        try {
+            for(Competitor c : allByCompetition) {
                 writer.write(c.getLicenceId() + "," + c.getName() + "," + c.getSeries().getName() + "," + c.getStartTime() + "\n");
-            } catch (IOException e) {
-                throw new RuntimeException(e);
             }
-        });
-
+            writer.close();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
 
     }
 }
