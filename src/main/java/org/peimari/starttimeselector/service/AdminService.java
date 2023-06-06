@@ -384,4 +384,9 @@ public class AdminService {
         }
 
     }
+
+    @Transactional
+    public void addClass(Competition competition, String className) {
+        addSeriesAndGroup(competition, className);
+    }
 }

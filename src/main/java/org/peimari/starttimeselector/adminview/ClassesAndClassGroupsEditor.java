@@ -1,10 +1,12 @@
 package org.peimari.starttimeselector.adminview;
 
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.Paragraph;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.notification.Notification;
+import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.PageTitle;
@@ -66,6 +68,14 @@ public class ClassesAndClassGroupsEditor extends AbstractAdminView {
             adminService.breakSeriesGroups(seriesGroupsToBreak);
             listGroups();
         });
+        Button addNew = new Button("Add single class...", e -> {
+            new Dialog(new TextField("Class name", e1 -> {
+                this.adminService.addClass(adminControl.getCompetition(), e1.getValue());
+                e1.getSource().findAncestor(Dialog.class).close();
+                listGroups();
+            })).open();
+        });
+        
         Button delete = new Button("Delete selected groups", e -> {
             Set<SeriesGroup> seriesGroups = groups.asMultiSelect().getValue();
             adminService.deleteSeriesGroups(seriesGroups);
@@ -94,7 +104,7 @@ public class ClassesAndClassGroupsEditor extends AbstractAdminView {
         });
         ufh.setUploadButton(new Button("Load new classes from IRMA file..."));
 
-        add(new VHorizontalLayout(combine, uncombine, delete, ufh).alignAll(Alignment.CENTER));
+        add(new VHorizontalLayout(combine, uncombine, delete, addNew, ufh).alignAll(Alignment.CENTER));
         addAndExpand(groups);
         listGroups();
     }
