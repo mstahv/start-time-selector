@@ -191,6 +191,9 @@ public class AdminService {
         List<SeriesGroup> allByCompetition = seriesGroupRepository.findAllByCompetition(competition);
         Map<String, Series> seriesNameToEntity = new HashMap<>();
         allByCompetition.stream().forEach(group -> group.getSeries().stream().forEach(s -> seriesNameToEntity.put(s.getName(), s)));
+
+        List<Competitor> allCompetitors = competitorRepository.findAllByCompetition(competition);
+
         input.stream().forEach(line -> {
             try {
                 //H21A;1504;500728;;Heikkilä Tero;PR;
@@ -201,7 +204,9 @@ public class AdminService {
                 //club may be empty
                 competitor.setClub(line.size() > 5 ? line.get(5) : "");
                 Series s = seriesNameToEntity.get(line.get(0));
-                if (s != null) {
+
+                boolean present = allCompetitors.stream().filter(c -> c.getLicenceId().equals(competitor.getLicenceId())).findFirst().isPresent();
+                if (s != null && !present) {
                     competitor.setSeries(s);
                     competitorRepository.save(competitor);
                     mutableInt.increment();
