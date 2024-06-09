@@ -3,6 +3,7 @@ package org.peimari.starttimeselector.service;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -64,19 +65,48 @@ public class AdminService {
     }
 
     @Transactional
-    public void readInSeriesFromIrmaFile(InputStream inputStream, Competition c) throws IOException, Exception {
+    public void readInSeriesFromIrmaFile(InputStream inputStream, Competition c, boolean singleQueue, LocalTime first, Integer intervalValue, Integer slots) throws IOException, Exception {
         List<List<String>> input = readIrmaFile(inputStream, false);
         Set<String> seriesNames = input.stream().map(l -> l.get(0)).collect(Collectors.toSet());
-        seriesNames.forEach(name -> {
-            System.out.println(name.length());
-            addSeriesAndGroup(c, name);
-        });
+        if(singleQueue && seriesNames.size() > 1) {
+            // load given series to single queue
+            String groupname = seriesNames.stream().collect(Collectors.joining(","));
+            SeriesGroup seriesGroup = new SeriesGroup();
+            seriesGroup.setName(groupname);
+            seriesGroup.setCompetition(c);
+
+            LocalDateTime start = first.atDate(c.getStart().toLocalDate());
+            for(int i = 0; i < slots; i++) {
+                StartTime st = new StartTime();
+                st.setSeriesGroup(seriesGroup);
+                st.setTime(start);
+                seriesGroup.getStartTimes().add(st);
+                start = start.plusSeconds(intervalValue);
+            }
+
+            List<Series> all = new ArrayList<>();
+
+            for(String sname : seriesNames) {
+                Series series = new Series();
+                series.setSeriesGroup(seriesGroup);
+                series.setName(sname);
+                series.setSeriesGroup(seriesGroup);
+                all.add(series);
+            }
+            seriesGroupRepository.save(seriesGroup);
+            seriesRepository.saveAll(all);
+        } else {
+            // all sepaprately, the old style
+            seriesNames.forEach(name -> {
+                addSeriesAndGroup(c, name);
+            });
+        }
     }
 
 
-    private void addSeriesAndGroup(Competition competition, String s) {
+    private SeriesGroup addSeriesAndGroup(Competition competition, String s) {
         if (s == null || s.isEmpty()) {
-            return;
+            return null;
         }
         Series series = new Series();
         series.setName(s);
@@ -85,6 +115,7 @@ public class AdminService {
         createSeries(competition, group, series);
         seriesGroupRepository.save(group);
         seriesRepository.save(series);
+        return group;
     }
 
     @Transactional
@@ -163,10 +194,14 @@ public class AdminService {
     }
 
     private void createSeries(Competition competition, SeriesGroup group, Series series) {
-        group.setCompetition(competition);
-        series.setSeriesGroup(group);
         LocalDateTime start = competition.getStart();
         LocalDateTime end = competition.getEnd();
+        createSeries(competition, group, series, start, end);
+    }
+
+    private static void createSeries(Competition competition, SeriesGroup group, Series series, LocalDateTime start, LocalDateTime end) {
+        group.setCompetition(competition);
+        series.setSeriesGroup(group);
         while (start.isBefore(end)) {
             StartTime st = new StartTime();
             st.setSeriesGroup(group);

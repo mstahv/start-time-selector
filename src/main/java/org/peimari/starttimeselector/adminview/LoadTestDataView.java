@@ -4,7 +4,6 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.VaadinServlet;
-import org.apache.commons.io.IOUtils;
 import org.peimari.starttimeselector.entities.Competition;
 import org.peimari.starttimeselector.service.AdminService;
 
@@ -25,7 +24,7 @@ public class LoadTestDataView extends VerticalLayout {
                 Competition newCompetition = adminService.createNewCompetition();
                 try {
                     InputStream is = new FileInputStream("sample-data/irma-export.csv");
-                    adminService.readInSeriesFromIrmaFile(is, newCompetition);
+                    adminService.readInSeriesFromIrmaFile(is, newCompetition, false, null, null, null);
                     is = new FileInputStream("sample-data/irma-export.csv");
                     adminService.readInCompetitorsFromIrmaFile(is, newCompetition);
                     newCompetition.setOpen(true);

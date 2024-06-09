@@ -12,6 +12,9 @@ import org.peimari.starttimeselector.entities.Competition;
 import org.peimari.starttimeselector.service.AdminService;
 import org.springframework.core.env.Environment;
 import org.springframework.core.env.Profiles;
+import org.vaadin.firitin.appframework.NavigationItem;
+
+import java.util.List;
 
 @Route(value = "", layout = AdminMainLayout.class)
 @RouteAlias(value = "competitionadmin", layout = AdminMainLayout.class, absolute = true)
@@ -45,9 +48,16 @@ public class ChooseCompetitionView extends AbstractAdminView {
     public void setCompetition(Competition c) {
         if (c != null) {
             adminControl.setCompetition(c);
+
+            List<NavigationItem> navigationItems = getAdminMainLayout().getNavigationItems();
+
             // Enable all options from the menu
             getAdminMainLayout().getNavigationItems().stream()
-                    .forEach(ni -> ni.setEnabled(true));
+                    .forEach(ni -> {
+                        ni.setEnabled(true);
+
+
+                    });
             getAdminMainLayout().buildMenu();
 
             UI.getCurrent().navigate(CompetitionDetailsView.class);
@@ -78,7 +88,8 @@ public class ChooseCompetitionView extends AbstractAdminView {
         // Disable all but this from the menu until competition is chosen
         getAdminMainLayout().getNavigationItems().stream()
                 .filter(ni -> ni.getNavigationTarget() != ChooseCompetitionView.class)
-                .forEach(ni -> ni.setEnabled(false));
-        getAdminMainLayout().buildMenu();
+                .forEach(ni -> {
+                    ni.setEnabled(false);
+                });
     }
 }

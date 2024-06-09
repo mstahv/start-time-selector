@@ -1,24 +1,27 @@
 package org.peimari.starttimeselector.adminview;
 
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.Paragraph;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.notification.Notification;
+import com.vaadin.flow.component.textfield.IntegerField;
 import com.vaadin.flow.component.textfield.TextField;
-import com.vaadin.flow.router.BeforeEnterEvent;
-import com.vaadin.flow.router.BeforeEnterObserver;
+import com.vaadin.flow.component.timepicker.TimePicker;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import org.peimari.starttimeselector.entities.SeriesGroup;
 import org.peimari.starttimeselector.service.AdminService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.vaadin.firitin.components.orderedlayout.VHorizontalLayout;
-import org.vaadin.firitin.components.orderedlayout.VVerticalLayout;
+import org.vaadin.firitin.components.textfield.VIntegerField;
+import org.vaadin.firitin.components.timepicker.VTimePicker;
 import org.vaadin.firitin.components.upload.UploadFileHandler;
 
 import java.io.IOException;
+import java.time.Duration;
 import java.util.List;
 import java.util.Set;
 import java.util.logging.Level;
@@ -32,6 +35,11 @@ public class ClassesAndClassGroupsEditor extends AbstractAdminView {
 
     @Autowired
     private SeriesGroupStartTimeEditor startTimeEditor;
+
+    TimePicker firstStart = new VTimePicker("First start").withWidth("9em");
+    Checkbox singleQueue = new Checkbox("Single queue");
+    IntegerField interval = new VIntegerField("Interval (s)").withWidth("8em");
+    IntegerField slots = new VIntegerField("Slots").withWidth("8em");
 
     public ClassesAndClassGroupsEditor(AdminService adminService, AdminControl adminControl, SeriesGroupStartTimeEditor startTimeEditor) {
         super(adminControl, adminService);
@@ -84,7 +92,13 @@ public class ClassesAndClassGroupsEditor extends AbstractAdminView {
 
         UploadFileHandler ufh = new UploadFileHandler((inputStream, s, s1) -> {
             try {
-                adminService.readInSeriesFromIrmaFile(inputStream, adminControl.getCompetition());
+                adminService.readInSeriesFromIrmaFile(inputStream,
+                        adminControl.getCompetition(),
+                        singleQueue.getValue(),
+                        firstStart.getValue(),
+                        interval.getValue(),
+                        slots.getValue()
+                );
                 // TODO, due to Upload bug this don't work unless push is enabled :-(
                 getUI().get().access(() -> {
                     listGroups();
@@ -104,7 +118,22 @@ public class ClassesAndClassGroupsEditor extends AbstractAdminView {
         });
         ufh.setUploadButton(new Button("Load new classes from IRMA file..."));
 
-        add(new VHorizontalLayout(combine, uncombine, delete, addNew, ufh).alignAll(Alignment.CENTER));
+        singleQueue.addValueChangeListener(e -> {
+            firstStart.setEnabled(e.getValue());
+            interval.setEnabled(e.getValue());
+            slots.setEnabled(e.getValue());
+        });
+        singleQueue.setValue(true);
+        singleQueue.setValue(false);
+        firstStart.setValue(adminControl.getCompetition().getStart().toLocalTime());
+        interval.setValue(adminControl.getCompetition().getStartIntervalSeconds());
+        long seconds = Duration.between(adminControl.getCompetition().getStart(), adminControl.getCompetition().getEnd()).toSeconds();
+        int slots = (int) (seconds / interval.getValue());
+        this.slots.setValue(slots);
+
+        add(new VHorizontalLayout(ufh, singleQueue, firstStart, interval, this.slots).alignAll(Alignment.END));
+
+        add(new VHorizontalLayout(combine, uncombine, delete, addNew).alignAll(Alignment.CENTER));
         addAndExpand(groups);
         listGroups();
     }
