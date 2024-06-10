@@ -131,7 +131,7 @@ public class ClassesAndClassGroupsEditor extends AbstractAdminView {
         int slots = (int) (seconds / interval.getValue());
         this.slots.setValue(slots);
 
-        add(new VHorizontalLayout(ufh, singleQueue, firstStart, interval, this.slots).alignAll(Alignment.END));
+        add(new VHorizontalLayout(ufh, singleQueue, firstStart, interval, this.slots).alignAll(Alignment.BASELINE));
 
         add(new VHorizontalLayout(combine, uncombine, delete, addNew).alignAll(Alignment.CENTER));
         addAndExpand(groups);

@@ -68,7 +68,7 @@ public class AdminService {
     public void readInSeriesFromIrmaFile(InputStream inputStream, Competition c, boolean singleQueue, LocalTime first, Integer intervalValue, Integer slots) throws IOException, Exception {
         List<List<String>> input = readIrmaFile(inputStream, false);
         Set<String> seriesNames = input.stream().map(l -> l.get(0)).collect(Collectors.toSet());
-        if(singleQueue && seriesNames.size() > 1) {
+        if(singleQueue && seriesNames.size() > 0) {
             // load given series to single queue
             String groupname = seriesNames.stream().collect(Collectors.joining(","));
             SeriesGroup seriesGroup = new SeriesGroup();
