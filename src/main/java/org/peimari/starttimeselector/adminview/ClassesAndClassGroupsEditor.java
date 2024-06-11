@@ -14,6 +14,7 @@ import com.vaadin.flow.component.timepicker.TimePicker;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import org.peimari.starttimeselector.entities.SeriesGroup;
+import org.peimari.starttimeselector.entities.StartTime;
 import org.peimari.starttimeselector.service.AdminService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.vaadin.firitin.components.orderedlayout.VHorizontalLayout;
@@ -23,6 +24,8 @@ import org.vaadin.firitin.components.upload.UploadFileHandler;
 
 import java.io.IOException;
 import java.time.Duration;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 import java.util.logging.Level;
@@ -62,7 +65,11 @@ public class ClassesAndClassGroupsEditor extends AbstractAdminView {
             }
             return count;
         }).setHeader("Competitors");
-        groups.addColumn(sg -> sg.getStartTimes().get(0)).setHeader("First start");
+        groups.addColumn(sg -> {
+            List<StartTime> startTimes = sg.getStartTimes();
+            startTimes.sort(Comparator.comparing(c -> c.getTime()));
+            return startTimes.get(0);
+        }).setHeader("First start");
         groups.addComponentColumn(sg -> new Button("Edit start times", e -> {
             startTimeEditor.setGroup(sg, adminControl.getCompetition(), this);
         }));
