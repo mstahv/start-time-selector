@@ -13,9 +13,6 @@ public class AdminControl {
 
     private Competition competition;
 
-    @Autowired
-    private AdminMainLayout adminMainLayout;
-
     public boolean isLoggedIn() {
         return loggedIn;
     }
@@ -30,9 +27,5 @@ public class AdminControl {
 
     public void setCompetition(Competition competition) {
         this.competition = competition;
-    }
-
-    public AdminMainLayout getAdminMainLayout() {
-        return adminMainLayout;
     }
 }

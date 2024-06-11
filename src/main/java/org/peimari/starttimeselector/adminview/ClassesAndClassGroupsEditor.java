@@ -1,5 +1,6 @@
 package org.peimari.starttimeselector.adminview;
 
+import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.dialog.Dialog;
@@ -61,6 +62,7 @@ public class ClassesAndClassGroupsEditor extends AbstractAdminView {
             }
             return count;
         }).setHeader("Competitors");
+        groups.addColumn(sg -> sg.getStartTimes().get(0)).setHeader("First start");
         groups.addComponentColumn(sg -> new Button("Edit start times", e -> {
             startTimeEditor.setGroup(sg, adminControl.getCompetition(), this);
         }));
