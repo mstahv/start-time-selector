@@ -8,6 +8,9 @@ import com.vaadin.flow.component.html.*;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
+import com.vaadin.flow.router.BeforeEvent;
+import com.vaadin.flow.router.HasUrlParameter;
+import com.vaadin.flow.router.OptionalParameter;
 import com.vaadin.flow.router.Route;
 import org.peimari.starttimeselector.entities.Competitor;
 import org.peimari.starttimeselector.entities.SeriesGroup;
@@ -22,7 +25,7 @@ import java.text.MessageFormat;
 import java.util.List;
 
 @Route
-public class MainView extends VerticalLayout {
+public class MainView extends VerticalLayout implements HasUrlParameter<String> {
 
     @Autowired
     private UserService userService;
@@ -52,7 +55,12 @@ public class MainView extends VerticalLayout {
     }
 
     private void login() {
-        List<Competitor> competitorList = userService.getCompetitorInfo(license.getValue());
+        String license = this.license.getValue();
+        listCompetitions(license);
+    }
+
+    private void listCompetitions(String license) {
+        List<Competitor> competitorList = userService.getCompetitorInfo(license);
         listCompetitions(competitorList);
         if(!competitorList.isEmpty()) {
             add(new Button(getTranslation("choose.foranoter"), e -> {
@@ -70,6 +78,16 @@ public class MainView extends VerticalLayout {
             competitorInfo.forEach(c -> {
                 add(new StartTimeSelector(c));
             });
+        }
+    }
+
+    @Override
+    public void setParameter(BeforeEvent event, @OptionalParameter String parameter) {
+        try {
+            int l = Integer.parseInt(parameter);
+            license.setValue(parameter.trim());
+            login.click();
+        } catch (Exception e) {
         }
     }
 
